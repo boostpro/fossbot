@@ -14,11 +14,11 @@ import re
 import sys
 import traceback
 from twisted.web import server, resource
-from twisted.internet import reactor
+from twisted.internet import reactor, threads
 from twisted.spread import pb
 from twisted.cred import credentials
 from optparse import OptionParser
-from subprocess import call
+from subprocess import check_call
 
 try:
     import json
@@ -147,9 +147,12 @@ class GitHubBot(GitHubChangeListener):
         GitHubChangeListener.__init__(self)
 
     def process_changes(self, changes):
-        call(('/usr/local/bin/git', 'pull'), cwd=self.src_dir)
-        call(args=('/usr/local/bin/git', 'submodule', 'update', '--init'), cwd=self.src_dir)
-        call(args=('buildbot', 'reconfig'), cwd=self.master_dir)
+        def thd(changes):
+            check_call(('/usr/local/bin/git', 'pull'), cwd=self.src_dir)
+            check_call(args=('/usr/local/bin/git', 'submodule', 'update', '--init'), cwd=self.src_dir)
+            check_call(args=('buildbot', 'reconfig'), cwd=self.master_dir)
+        d = threads.deferToThread(thd, changes)
+        
 
 def main():
     """
