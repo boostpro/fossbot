@@ -14,7 +14,7 @@ import re
 import sys
 import traceback
 from twisted.web import server, resource
-from twisted.internet import reactor
+from twisted.internet import reactor, utils
 from twisted.spread import pb
 from twisted.cred import credentials
 from optparse import OptionParser
@@ -146,17 +146,26 @@ class GitHubBot(GitHubChangeListener):
         GitHubChangeListener.__init__(self)
 
     def process_changes(self, changes):
-        pid = os.fork()
-        if pid:
-            returned=os.waitpid(pid,0)
-            returncode=os.WEXITSTATUS(returned[1])
-            if returncode != 0:
-                raise CalledProcessError, str(returncode)
-        else:
-            from subprocess import check_call
-            check_call(('/usr/local/bin/git', 'pull'), cwd=self.src_dir)
-            check_call(args=('/usr/local/bin/git', 'submodule', 'update', '--init'), cwd=self.src_dir)
-            check_call(args=('buildbot', 'reconfig'), cwd=self.master_dir)
+
+        step1 = utils.getProcessValue(
+            '/usr/local/bin/git', 'pull', path=self.src_dir)
+
+        def post_pull(val):
+            if val != 0: raise OSError, str(val)
+            step2 = utils.getProcessValue(
+                '/usr/local/bin/git', 'submodule', 'update', '--init', path=self.src_dir)
+
+            def post_submodule(val):
+                if val != 0: raise OSError, str(val)
+                step3 = utils.getProcessValue(
+                    'buildbot', 'reconfig', path=self.master_dir)
+                
+                def post_reconfig(val):
+                    if val != 0: raise OSError, str(val)
+
+                step3.addCallback(post_reconfig)
+            step2.addCallback(post_submodule)
+        step1.addCallback(post_pull)
         
 
 def main():
