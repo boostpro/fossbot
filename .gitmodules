@@ -1,0 +1,3 @@
+[submodule "bbot"]
+	path = bbot
+	url = git@github.com:boostpro/bbot
