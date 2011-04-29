@@ -213,7 +213,7 @@ def main():
     
     github_bot = GitHubBot(master_dir = options.master, src_dir = options.src)
     github_bot.github = options.github
-    github_bot.master = options.buildmaster
+    github_bot.master = options.master
     
     site = server.Site(github_bot)
     reactor.listenTCP(options.port, site)
