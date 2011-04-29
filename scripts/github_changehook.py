@@ -18,7 +18,7 @@ from twisted.internet import reactor
 from twisted.spread import pb
 from twisted.cred import credentials
 from optparse import OptionParser
-from subprocess import check_call
+from subprocess import Popen
 
 try:
     import json
@@ -147,9 +147,9 @@ class GitHubBot(GitHubChangeListener):
         GitHubChangeListener.__init__(self)
 
     def process_changes(self, changes):
-        check_call(('/usr/local/bin/git', 'pull'), cwd=self.src_dir)
-        check_call(args=('/usr/local/bin/git', 'submodule', 'update', '--init'), cwd=self.src_dir)
-        check_call(args=('buildbot', 'reconfig'), cwd=self.master_dir)
+        call(('/usr/local/bin/git', 'pull'), cwd=self.src_dir)
+        call(args=('/usr/local/bin/git', 'submodule', 'update', '--init'), cwd=self.src_dir)
+        call(args=('buildbot', 'reconfig'), cwd=self.master_dir)
 
 def main():
     """
