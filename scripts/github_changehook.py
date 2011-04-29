@@ -147,21 +147,24 @@ class GitHubBot(GitHubChangeListener):
 
     def process_changes(self, changes):
 
-        step1 = utils.getProcessValue(
+        step1 = utils.getProcessOutputAndValue(
             '/usr/local/bin/git', 'pull', path=self.src_dir)
 
-        def post_pull(val):
-            if val != 0: raise OSError, str(val)
-            step2 = utils.getProcessValue(
-                '/usr/local/bin/git', 'submodule', 'update', '--init', path=self.src_dir)
+        def post_pull(out_err_code):
+            out,err,code = out_err_code
+            if code != 0: raise OSError, str(code)+': '+err
+            step2 = utils.getProcessOutputAndValue(
+                '/usr/local/bin/git', 'submodule', 'update', '--init', path=self.src_dir, errortoo=True)
 
-            def post_submodule(val):
-                if val != 0: raise OSError, str(val)
-                step3 = utils.getProcessValue(
-                    'buildbot', 'reconfig', path=self.master_dir)
+            def post_submodule(out_err_code):
+                out,err,code = out_err_code
+                if code != 0: raise OSError, str(code)+': '+err
+                step3 = utils.getProcessOutputAndValue(
+                    'buildbot', 'reconfig', path=self.master_dir, errortoo=True)
                 
-                def post_reconfig(val):
-                    if val != 0: raise OSError, str(val)
+                def post_reconfig(out_err_code):
+                    out,err,code = out_err_code
+                    if code != 0: raise OSError, str(code)+': '+err
 
                 step3.addCallback(post_reconfig)
             step2.addCallback(post_submodule)
