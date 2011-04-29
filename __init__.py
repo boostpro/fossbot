@@ -38,7 +38,7 @@ BuildmasterConfig = bbot.master(
                     notify_events=transitions,
                     channels=["#el-get"]),
 
-                GitHubWebStatus('dimitri/el-get', http_port='tcp:80:interface=127.0.0.1'),
+                GitHubWebStatus('dimitri/el-get', http_port='tcp:8010:interface=127.0.0.1'),
 
                 MailNotifier(fromaddr="buildbot@boostpro.com",
                              extraRecipients=["el-get-devel@tapoueh.org"],
