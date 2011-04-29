@@ -154,13 +154,13 @@ class GitHubBot(GitHubChangeListener):
             out,err,code = out_err_code
             if code != 0: raise OSError, str(code)+': '+err
             step2 = utils.getProcessOutputAndValue(
-                '/usr/local/bin/git', ['submodule', 'update', '--init'], path=self.src_dir, errortoo=True)
+                '/usr/local/bin/git', ['submodule', 'update', '--init'], path=self.src_dir)
 
             def post_submodule(out_err_code):
                 out,err,code = out_err_code
                 if code != 0: raise OSError, str(code)+': '+err
                 step3 = utils.getProcessOutputAndValue(
-                    'buildbot', ['reconfig'], path=self.master_dir, errortoo=True)
+                    'buildbot', ['reconfig'], path=self.master_dir)
                 
                 def post_reconfig(out_err_code):
                     out,err,code = out_err_code
