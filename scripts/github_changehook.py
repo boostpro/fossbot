@@ -18,7 +18,7 @@ from twisted.internet import reactor
 from twisted.spread import pb
 from twisted.cred import credentials
 from optparse import OptionParser
-from subprocess import Popen
+from subprocess import call
 
 try:
     import json
