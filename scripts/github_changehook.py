@@ -185,11 +185,11 @@ def main():
         dest="pidfile")
 
     parser.add_option("-m", "--master", 
-        help="The absolute path to the buildmaster directory"
+        help="The absolute path to the buildmaster directory",
             dest="master")
         
     parser.add_option("-s", "--src", 
-        help="The absolute path to the source directory that needs to be updated from github"
+        help="The absolute path to the source directory that needs to be updated from github",
             dest="src")
         
     (options, _) = parser.parse_args()
