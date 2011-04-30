@@ -192,12 +192,6 @@ def main():
         help="The logging level: debug, info, warn, error, fatal [default:" 
             + " %default]", default='warn', dest="level")
         
-    parser.add_option("-g", "--github", 
-        help="The github server.  Changing this is useful if you've specified"      
-            + "  a specific HOST handle in ~/.ssh/config for github "   
-            + "[default: %default]", default='github.com',
-        dest="github")
-
     parser.add_option("--pidfile",
         help="Write the process identifier (PID) to this file on start."
             + " The file is removed on clean exit. [default: %default]",
@@ -232,8 +226,6 @@ def main():
                         level=levels[options.level])
     
     github_bot = GitHubBot(master_dir = options.master, src_dir = options.src)
-    github_bot.github = options.github
-    github_bot.master = options.master
     
     site = server.Site(github_bot)
     reactor.listenTCP(options.port, site)
