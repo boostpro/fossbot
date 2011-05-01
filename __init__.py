@@ -12,9 +12,9 @@ import bbot
 transitions={'successToFailure' : 1,'failureToSuccess' : 1, 'exception':1}
 
 BuildmasterConfig = bbot.master(
-    name = 'BoostPro FOSSbot',
-    name_url = 'http://github.com/boostpro/fossbot',
-    bot_url = 'http://bbot.boostpro.com/',
+    title = 'BoostPro FOSSbot',
+    titleURL = 'http://github.com/boostpro/fossbot',
+    buildbotURL = 'http://bbot.boost-consulting.com',
 
     slaves = [
         Slave(
