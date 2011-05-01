@@ -1,16 +1,13 @@
 # -*- python -*-
 # ex: set syntax=python:
-from lazy_reload import lazy_reload
-lazy_reload("fossbot")
-
-from buildbot.buildslave import BuildSlave
-import fossbot
-import bbot
 
 from bbot.procedures import GitHubElisp
 from bbot.project import Project
 from bbot.status import IRC, GitHubWebStatus, MailNotifier
 from bbot.repository import GitHub
+from bbot.slave import Slave
+
+import bbot
 
 transitions={'successToFailure' : 1,'failureToSuccess' : 1, 'exception':1}
 
@@ -20,12 +17,12 @@ BuildmasterConfig = bbot.master(
     bot_url = 'http://bbot.boostpro.com/',
 
     slaves = [
-        BuildSlave(
-            'Win03d', 'larches3#outspread', 
+        Slave(
+            'boostpro-win03-1',
             properties=dict(os='win32', emacs=True)),
         
-        BuildSlave(
-            'Ubu10_10a', 'muleteer482!retina',
+        Slave(
+            'boostpro-ubu11.04-1',
             properties=dict(os='linux', emacs=True)),
         ],
 
