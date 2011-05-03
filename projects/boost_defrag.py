@@ -46,7 +46,7 @@ class Portable(WithProperties):
 
     @interpolated
     def make_continue_opt(p):
-        return p['os'].startswith('win') and '-k' or '/K'
+        return p['os'].startswith('win') and '/K' or '-k' 
 
     @interpolated
     def nil(p):
@@ -68,7 +68,7 @@ class DefragTests(BuildProcedure):
                 description='Documentation'))
 
     def test(self, variant):
-        setup = [ Portable.setup, '&&' ]
+        setup = [] # [ Portable.setup, '&&' ]
 
         self.addSteps(
             SetProperty(
