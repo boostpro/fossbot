@@ -75,7 +75,10 @@ def propertize(stepClass, properties):
         
         def start(self):
             for k,v in self.__properties.iteritems():
-                self.setProperty(k, v)
+                # Allow property values from earlier to be used here
+                # but don't overwrite any rendered stuff
+                if not isinstance(v, Callable):
+                    self.setProperty(k, v)
             self.setCommand
             return stepClass.start(self)
 
