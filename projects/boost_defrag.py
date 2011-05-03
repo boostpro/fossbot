@@ -8,6 +8,7 @@ from buildbot.steps.shell import Configure, Compile, Test, ShellCommand
 
 import buildbot.process.properties
 from buildbot import util
+from collections import Callable
 
 class WithProperties(buildbot.process.properties.WithProperties):
     """
@@ -36,7 +37,7 @@ class WithProperties(buildbot.process.properties.WithProperties):
 
             properties = pmap.properties()
             for k,v in properties.asDict().iteritems():
-                if not isinstance(v, (str,unicode)):
+                if isinstance(v, Callable):
                     pmap.add_temporary_value(k, v(properties))
             s = self.fmtstring % pmap
             pmap.clear_temporary_values()
