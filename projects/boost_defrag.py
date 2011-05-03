@@ -26,7 +26,7 @@ class WithProperties(buildbot.process.properties.WithProperties):
             raise ValueError('WithProperties takes either positional or keyword substitutions, not both.')
 
     def __repr__(self):
-        return self.__class_.__name__+'(%(fmtstring)r, *%(args)r, **%(kw)r)' % self.__dict__
+        return self.__class__.__name__+'(%(fmtstring)r, *%(args)r, **%(kw)r)' % self.__dict__
 
     def render(self, pmap):
         if self.args:
