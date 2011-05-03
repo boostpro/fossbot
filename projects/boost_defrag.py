@@ -104,7 +104,7 @@ class DefragTests(BuildProcedure):
         props.update(portability_properties)
 
         self.addSteps(
-            SetProperty(extract_fn=lambda status,out,err: props),
+            SetProperty(command = ['echo'], extract_fn=lambda status,out,err: props),
 
             Configure(
                 command = [ 'cmake', '-DBOOST_UPDATE_SOURCE=1',
