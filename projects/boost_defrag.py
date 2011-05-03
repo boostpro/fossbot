@@ -15,7 +15,7 @@ class WithProperties(util.ComparableMixin):
     want to interpolate build properties.
     """
 
-    compare_attrs = ('fmtstring', 'args')
+    compare_attrs = ('fmtstring', 'args', 'kw')
 
     def __init__(self, fmtstring, *args, **kw):
         self.fmtstring = fmtstring
