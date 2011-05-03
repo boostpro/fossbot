@@ -1,44 +1,67 @@
 from fossbot.bbot.repository import GitHub
 from fossbot.bbot.procedures import BuildProcedure
 from fossbot.bbot.status import IRC, MailNotifier
+from fossbot.bbot.memoize import memoize
 
 from buildbot.steps.source import Git
 from buildbot.steps.shell import Configure, Compile, Test, ShellCommand
 
-class Variant(object):
-    def __init__(self, name):
-        self.name = name
+# from buildbot.process.properties import WithProperties
+from buildbot import util
 
-    def __call__(self, klass, **kw):
-        desc = kw.pop('description', klass.__name__)
-        return klass(
-            description = self.name + ' ' + desc,
-            workdir = self.name.lower(),
-            **kw)
+class WithProperties(util.ComparableMixin):
+    """
+    This is a marker class, used fairly widely to indicate that we
+    want to interpolate build properties.
+    """
 
-class MakeMixin(object):
-    @property
-    def make(self):
-        if 'win' in self.getProperty('os'):
-            return 'nmake'
+    compare_attrs = ('fmtstring', 'args')
+
+    def __init__(self, fmtstring, *args, **kw):
+        self.fmtstring = fmtstring
+        self.args = args
+        self.kw = kw
+        if args and kw:
+            raise ValueError('WithProperties takes either positional or keyword substitutions, not both.')
+
+    def render(self, pmap):
+        if self.args:
+            strings = []
+            for name in self.args:
+                strings.append(pmap[name])
+            s = self.fmtstring % tuple(strings)
         else:
-            return 'make'
+            for k,v in self.kw.iteritems():
+                pmap.add_temporary_value(k, v)
 
-    @property
-    def makeopt(self):
-        if 'win' in self.getProperty('os'):
-            return '/K'
+            properties = pmap.properties()
+            for k,v in properties.items():
+                if not isinstance(v, (str,unicode)):
+                    pmap.add_temporary_value(k, v(properties))
+            s = self.fmtstring % pmap
+            pmap.clear_temporary_values()
+        return s
+
+def toolchain_setup(p):
+    if p['os'].startswith('win'):
+        m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p['cc'])
+        if m:
+            return r'${VS%s%sCOMNTOOLS}\vsvars32' % (m.group(1), m.group(2) or '0')
         else:
-            return '-k'
+            return 'title'
+    return 'true'
 
-class Make(Compile, MakeMixin):
-    def start(self):
-        self.setCommand([self.make, self.makeopt])
+portability_properties = dict(
+    make=lambda p: p['os'].startswith('win') and 'nmake' or 'make',
+    make_k=lambda p: p['os'].startswith('win') and '-k' or '/K',
+    toolchain_setup=toolchain_setup,
+    )
 
-class MakeTest(Test, MakeMixin):
-    def start(self):
-        self.setCommand([self.make, self.makeopt, 'test'])
-
+def variant_properties(variant):
+    return dict(
+        src=lambda _:'variant'=='Debug' and '../source' or '../debug/monolithic',
+        variant=lambda _:variant)
+    
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
         BuildProcedure.__init__(self, 'Boost.Defrag')
@@ -46,28 +69,42 @@ class DefragTests(BuildProcedure):
         self.addStep(
             Git('http://github.com/%s.git' % repo, workdir='source'))
 
-        self.test(Variant('Debug'))
+        self.test('Debug')
 
-        self.test(Variant('Release'))
+        self.test('Release')
 
-        self.addStep(
-            ShellCommand(
-                description='Documentation',
-                command = ['make', 'documentation', '-k'],
-                workdir = 'release'))
+        self.command(
+            ShellCommand, 'Release',
+            command = ['make', 'documentation', '-k'],
+            description='Documentation')
+
+    def command(self, cls, variant, command, **kw):
+        
+        props = variant_properties(variant)
+        props.update(portability_properties)
+
+        step = cls(
+            command = [WithProperties('%(toolchain_setup)s', **props), '&&'] + command,
+            workdir = WithProperties('%(variant)s', **props),
+            **kw)
+
+        step.description += ' (%s)' % variant
+           
+        self.step(step)
 
     def test(self, variant):
-        src_dirs = {'Debug' : '../source', 'Release' : '../debug/monolithic'}
-        src_dir = src_dirs[variant.name]
+        self.command(
+            Configure, variant,
+            command = [ 'cmake', '-DBOOST_UPDATE_SOURCE=1',
+                        '-DBOOST_DEBIAN_PACKAGES=1', 
+                        WithProperties('-DCMAKE_BUILD_TYPE=%(variant)s') ] )
+        self.command(
+            Compile, variant,
+            command = [ WithProperties('%(make)s'), WithProperties('%(make_k)s') ])
 
-        self.addSteps(
-            variant(
-                Configure,
-                command = [ "cmake", "-DBOOST_UPDATE_SOURCE=1",
-                            "-DBOOST_DEBIAN_PACKAGES=1", "-DCMAKE_BUILD_TYPE=Debug", src_dir ]
-                ),
-            variant(Make),
-            variant(MakeTest))
+        self.command(
+            Test, variant,
+            command = [ WithProperties('%(make)s'), WithProperties('%(make_k)s') ])
 
 
 hub_repo = 'ryppl/Boost.Defrag'
