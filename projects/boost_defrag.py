@@ -6,10 +6,10 @@ from fossbot.bbot.memoize import memoize
 from buildbot.steps.source import Git
 from buildbot.steps.shell import Configure, Compile, Test, ShellCommand
 
-# from buildbot.process.properties import WithProperties
+import buildbot.process.properties
 from buildbot import util
 
-class WithProperties(util.ComparableMixin):
+class WithProperties(buildbot.process.properties.WithProperties):
     """
     This is a marker class, used fairly widely to indicate that we
     want to interpolate build properties.
@@ -69,6 +69,7 @@ def propertize(stepClass, properties):
         def start(self):
             for k,v in self.__properties.iteritems():
                 self.setProperty(k, v)
+            self.setCommand
             return stepClass.start(self)
 
     return Propertized
