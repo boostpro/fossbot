@@ -25,6 +25,9 @@ class WithProperties(buildbot.process.properties.WithProperties):
         if args and kw:
             raise ValueError('WithProperties takes either positional or keyword substitutions, not both.')
 
+    def __repr__(self):
+        return type(self).__name__+'(%(fmtstring)s, *%(args)s, **%(kw)s)' % self.__dict__
+
     def render(self, pmap):
         if self.args:
             strings = []
