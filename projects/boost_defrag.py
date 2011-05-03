@@ -36,6 +36,9 @@ class WithProperties(buildbot.process.properties.WithProperties):
                 pmap.add_temporary_value(k, v)
 
             properties = pmap.properties()
+            print '#######', 
+            import pprint
+            pprint.pprint(properties.asDict())
             for k,v in properties.asDict().iteritems():
                 if isinstance(v, Callable):
                     pmap.add_temporary_value(k, v(properties))
