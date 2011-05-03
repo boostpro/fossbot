@@ -20,11 +20,15 @@ class interpolated(object):
         return objtype('%%(%s)s' % self.fn.__name__)
     
 class Portable(WithProperties):
-    
     def __init__(self, fmt, **kw):
         kw = kw.copy()
-        kw.update(self.__class__.__dict__)
-        WithProperties.__init__(self, fmt, kw)
+        kw.update(
+            dict(
+                [ (k, v.fn) for k,v in 
+                  self.__class__.__dict__.iteritems()
+                  if isinstance(v, interpolated) ]))
+
+        WithProperties.__init__(self, fmt, **kw)
 
     @interpolated
     def setup(p):
@@ -48,11 +52,6 @@ class Portable(WithProperties):
     def nil(p):
         return p['os'].startswith('win') and 'echo' or 'true'
 
-def variant_properties(variant):
-    return dict(
-        src=lambda _:'variant'=='Debug' and '../source' or '../debug/monolithic',
-        variant=variant)
-            
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
         BuildProcedure.__init__(self, 'Boost.Defrag')

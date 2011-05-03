@@ -6,7 +6,7 @@
 # __init__.py for more details about the reasons for this
 
 set -e
-export PATH="~/.virtualenvs/bb/bin:$PATH"
+export PATH="~/.virtualenvs/bb/bin:$PATH"x
 
 cd .. 
 ln -sf fossbot/master.cfg
