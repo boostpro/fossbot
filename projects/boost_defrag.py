@@ -96,7 +96,7 @@ class DefragTests(BuildProcedure):
 
         step = propertize(cls, props)(
             command = [WithProperties('%(toolchain_setup)s', **props), '&&'] + command,
-            workdir = WithProperties('%(variant)s', **props),
+            workdir = variant,
             **kw)
 
         step.description += ' (%s)' % variant
