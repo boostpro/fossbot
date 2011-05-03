@@ -73,10 +73,11 @@ def propertize(stepClass, properties):
     class Propertized(stepClass):
         __properties=properties
         
-        # def start(self):
-        #     for k,v in self.__properties.iteritems():
-        #         self.setProperty(k, v)
-        #     return stepClass.start(self)
+        def start(self):
+            for k,v in self.__properties.iteritems():
+                self.setProperty(k, v)
+            self.setCommand
+            return stepClass.start(self)
 
     return Propertized
             
