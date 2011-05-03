@@ -8,7 +8,7 @@ name = 'el-get'
 
 repositories=[GitHub('dimitri/el-get'), GitHub('dabrahams/el-get')]
 
-include_properties=['emacs']
+include_properties=['os', 'emacs']
             
 build_procedures=[GitHubElisp('dimitri/el-get')]
 
@@ -16,8 +16,6 @@ status=[
     IRC(host="irc.freenode.net", nick="elgetbot",
         notify_events=transitions,
         channels=["#el-get"]),
-
-    GitHubWebStatus('dimitri/el-get', http_port='tcp:8010:interface=127.0.0.1'),
 
     MailNotifier(fromaddr="buildbot@boostpro.com",
                  extraRecipients=["el-get-devel@tapoueh.org"],
