@@ -35,7 +35,7 @@ class WithProperties(buildbot.process.properties.WithProperties):
                 pmap.add_temporary_value(k, v)
 
             properties = pmap.properties()
-            for k,v in properties.items():
+            for k,v in properties.asDict().iteritems():
                 if not isinstance(v, (str,unicode)):
                     pmap.add_temporary_value(k, v(properties))
             s = self.fmtstring % pmap
