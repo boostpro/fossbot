@@ -103,16 +103,17 @@ class DefragTests(BuildProcedure):
         props = variant_properties(variant)
         props.update(portability_properties)
 
+        toolchain = [ WithProperties('%(toolchain_setup)s'), '&&' ]
         self.addSteps(
             SetProperty(command = ['echo'], extract_fn=lambda status,out,err: props),
 
             Configure(
-                command = [ 'cmake', '-DBOOST_UPDATE_SOURCE=1',
+                command = toolchain + [ 'cmake', '-DBOOST_UPDATE_SOURCE=1',
                             '-DBOOST_DEBIAN_PACKAGES=1', 
                             WithProperties('-DCMAKE_BUILD_TYPE=%(variant)s') ] ),
 
-            Compile(command = [ WithProperties('%(make)s'), WithProperties('%(make_k)s') ]),
-            Test(command = [ WithProperties('%(make)s'), WithProperties('%(make_k)s'), 'test' ]),
+            Compile(command = toolchain + [ WithProperties('%(make)s'), WithProperties('%(make_k)s') ]),
+            Test(command = toolchain + [ WithProperties('%(make)s'), WithProperties('%(make_k)s'), 'test' ]),
             )
 
 
