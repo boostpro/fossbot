@@ -61,7 +61,18 @@ def variant_properties(variant):
     return dict(
         src=lambda _:'variant'=='Debug' and '../source' or '../debug/monolithic',
         variant=lambda _:variant)
-    
+
+def propertize(stepClass, properties):
+    class Propertized(stepClass):
+        __properties=properties
+        
+        def start(self):
+            for k,v in self.__properties.iteritems():
+                self.setProperty(k, v)
+            return stepClass.start(self)
+
+    return Propertized
+            
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
         BuildProcedure.__init__(self, 'Boost.Defrag')
@@ -83,7 +94,7 @@ class DefragTests(BuildProcedure):
         props = variant_properties(variant)
         props.update(portability_properties)
 
-        step = cls(
+        step = propertize(cls, props)(
             command = [WithProperties('%(toolchain_setup)s', **props), '&&'] + command,
             workdir = WithProperties('%(variant)s', **props),
             **kw)
