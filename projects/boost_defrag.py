@@ -26,7 +26,7 @@ class WithProperties(buildbot.process.properties.WithProperties):
             raise ValueError('WithProperties takes either positional or keyword substitutions, not both.')
 
     def __repr__(self):
-        return type(self).__name__+'(%(fmtstring)s, *%(args)s, **%(kw)s)' % self.__dict__
+        return self.__class_.__name__+'(%(fmtstring)r, *%(args)r, **%(kw)r)' % self.__dict__
 
     def render(self, pmap):
         if self.args:
@@ -67,7 +67,7 @@ portability_properties = dict(
 def variant_properties(variant):
     return dict(
         src=lambda _:'variant'=='Debug' and '../source' or '../debug/monolithic',
-        variant=lambda _:variant)
+        variant=variant)
 
 def propertize(stepClass, properties):
     class Propertized(stepClass):
