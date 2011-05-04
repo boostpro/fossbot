@@ -75,7 +75,7 @@ class DefragTests(BuildProcedure):
                 command = [Portable.nil],
                 extract_fn=lambda status,out,err: { 
                     'variant':variant, 
-                    'src': (variant == 'Debug' and '../source' or '../debug/monolithic'),
+                    'src': (variant == 'Debug' and '../source' or '../Debug/monolithic'),
                     }),
 
             Configure(
