@@ -88,13 +88,15 @@ class DefragTests(BuildProcedure):
         return 
 
     def test(self, variant):
+        srcdir = (variant == 'Debug' and '..%(slash)ssource' or '..%(slash)sDebug%(slash)smonolithic')
+
         self.addSteps(
             Configure(
                 workdir=variant,
                 command = Portable(
                     '%(tool_env)s cmake -DBOOST_UPDATE_SOURCE=1'
                     ' -DBOOST_DEBIAN_PACKAGES=1 "-DCMAKE_BUILD_TYPE='+variant+'" '
-                    + variant == 'Debug' and '..%(slash)ssource' or '..%(slash)sDebug%(slash)smonolithic')),
+                    + srcdir)),
 
             Compile(
                 workdir=variant, 
