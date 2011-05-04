@@ -16,7 +16,10 @@ status=[
     IRC(host="irc.freenode.net", nick="elgetbot",
         notify_events=transitions,
         channels=["#el-get"]),
+]
 
+disabled_status = [
     MailNotifier(fromaddr="buildbot@boostpro.com",
                  extraRecipients=["el-get-devel@tapoueh.org"],
-                 mode='problem')]
+                 mode='problem')
+    ]
