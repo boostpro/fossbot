@@ -60,6 +60,10 @@ class Portable(WithProperties):
     def shell_cmd_opt(p):
         return p['os'].startswith('win') and '/c' or '-c'
 
+    @interpolated
+    def toolset_environ(p):
+        return p['toolset_environ']
+
 
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
@@ -80,7 +84,7 @@ class DefragTests(BuildProcedure):
 
         self.step(
             ShellCommand(
-                env=WithProperties('%(toolset_environ)s'),
+                env=Portable.toolset_environ,
                 workdir='Release',
                 command = [Portable.make, 'documentation', '-k'],
                 description='Documentation'))
@@ -96,19 +100,19 @@ class DefragTests(BuildProcedure):
                     }),
 
             Configure(
-                env=WithProperties('%(toolset_environ)s'),
+                env=Portable.toolset_environ,
                 workdir=variant,
                 command = [
                     'cmake', '-DBOOST_UPDATE_SOURCE=1', '-DBOOST_DEBIAN_PACKAGES=1', 
                     '-DCMAKE_BUILD_TYPE='+variant, WithProperties('%(src)s') ] ),
 
             Compile(
-                env=WithProperties('%(toolset_environ)s'),
+                env=Portable.toolset_environ,
                 workdir=variant, 
                 command = [ Portable.make, Portable.make_continue_opt ]),
 
             Test(
-                env=WithProperties('%(toolset_environ)s'),
+                env=Portable.toolset_environ,
                 workdir=variant, 
                 command = [ Portable.make, Portable.make_continue_opt, 'test' ]),
             )
