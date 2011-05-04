@@ -72,7 +72,7 @@ class DefragTests(BuildProcedure):
                 description = 'Toolset setup',
                 command = [ Portable.shell, Portable.shell_cmd_opt, Portable.get_toolset_environ ],
                 extract_fn=
-                  lambda status,out,err: dict( tool_environ=eval(out.strip() or 'None') )),
+                  lambda status,out,err: dict( toolset_environ=eval(out.strip() or 'None') )),
             )
 
         self.test('Debug')
@@ -80,7 +80,7 @@ class DefragTests(BuildProcedure):
 
         self.step(
             ShellCommand(
-                env=WithProperties('%(tool_environ)s'),
+                env=WithProperties('%(toolset_environ)s'),
                 workdir='Release',
                 command = [Portable.make, 'documentation', '-k'],
                 description='Documentation'))
