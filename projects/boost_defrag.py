@@ -9,6 +9,7 @@ from buildbot.steps.shell import Configure, Compile, Test, ShellCommand, SetProp
 import buildbot.process.properties
 from buildbot import util
 from collections import Callable
+import re
 
 from buildbot.process.properties import WithProperties
 
@@ -22,11 +23,10 @@ class interpolated(object):
 class Portable(WithProperties):
     def __init__(self, fmt, **kw):
         kw = kw.copy()
-        kw.update(
-            dict(
-                [ (k, v.fn) for k,v in 
-                  self.__class__.__dict__.iteritems()
-                  if isinstance(v, interpolated) ]))
+        for name in re.findall(r'(?<!%)%[(]([A-Za-z_]\w*)[)]', fmt):
+            interp = self.__class__.__dict__.get(name, None)
+            if interp: 
+                kw[name] = interp.fn
 
         WithProperties.__init__(self, fmt, **kw)
 
