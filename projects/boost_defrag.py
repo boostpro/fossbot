@@ -60,10 +60,6 @@ class Portable(WithProperties):
     def shell_cmd_opt(p):
         return p['os'].startswith('win') and '/c' or '-c'
 
-    @interpolated
-    def toolset_environ(p):
-        return p['tool_environ']
-
 
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
@@ -76,7 +72,7 @@ class DefragTests(BuildProcedure):
                 description = 'Toolset setup',
                 command = [ Portable.shell, Portable.shell_cmd_opt, Portable.get_toolset_environ ],
                 extract_fn=
-                  lambda status,out,err: dict( tool_environ=eval(out.strip() or '{}') )),
+                  lambda status,out,err: dict( toolset_environ=eval(out.strip() or '{}') )),
             )
 
         self.test('Debug')
@@ -84,7 +80,7 @@ class DefragTests(BuildProcedure):
 
         self.step(
             ShellCommand(
-                env=Portable.toolset_environ,
+                env=WithProperties('%(toolset_environ)s'),
                 workdir='Release',
                 command = [Portable.make, 'documentation', '-k'],
                 description='Documentation'))
@@ -100,19 +96,19 @@ class DefragTests(BuildProcedure):
                     }),
 
             Configure(
-                env=Portable.toolset_environ,
+                env=WithProperties('%(toolset_environ)s'),
                 workdir=variant,
                 command = [
                     'cmake', '-DBOOST_UPDATE_SOURCE=1', '-DBOOST_DEBIAN_PACKAGES=1', 
                     '-DCMAKE_BUILD_TYPE='+variant, WithProperties('%(src)s') ] ),
 
             Compile(
-                env=Portable.toolset_environ,
+                env=WithProperties('%(toolset_environ)s'),
                 workdir=variant, 
                 command = [ Portable.make, Portable.make_continue_opt ]),
 
             Test(
-                env=Portable.toolset_environ,
+                env=WithProperties('%(toolset_environ)s'),
                 workdir=variant, 
                 command = [ Portable.make, Portable.make_continue_opt, 'test' ]),
             )
