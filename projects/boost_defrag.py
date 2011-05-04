@@ -79,12 +79,18 @@ class DefragTests(BuildProcedure):
                     }),
 
             Configure(
+                workdir=variant,
                 command = setup + [
                     'cmake', '-DBOOST_UPDATE_SOURCE=1', '-DBOOST_DEBIAN_PACKAGES=1', 
                     '-DCMAKE_BUILD_TYPE='+variant, WithProperties('%(src)s') ] ),
 
-            Compile(command = setup + [ Portable.make, Portable.make_continue_opt ]),
-            Test(command = setup + [ Portable.make, Portable.make_continue_opt, 'test' ]),
+            Compile(
+                workdir=variant, 
+                command = setup + [ Portable.make, Portable.make_continue_opt ]),
+
+            Test(
+                workdir=variant, 
+                command = setup + [ Portable.make, Portable.make_continue_opt, 'test' ]),
             )
 
 
