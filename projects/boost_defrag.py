@@ -72,7 +72,7 @@ class DefragTests(BuildProcedure):
                 description = 'Toolset setup',
                 command = [ Portable.shell, Portable.shell_cmd_opt, Portable.get_toolset_environ ],
                 extract_fn=
-                  lambda status,out,err: dict( toolset_environ=eval(out.strip() or 'None') )),
+                  lambda status,out,err: dict( toolset_environ=eval(out.strip() or '{}') )),
             )
 
         self.test('Debug')
