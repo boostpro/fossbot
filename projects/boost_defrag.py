@@ -46,7 +46,7 @@ class Portable(WithProperties):
         WithProperties.__init__(self, fmt, **kw)
 
     def tool_env(p):
-        m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p.getProperty('cc',''))
+        m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p['cc'])
         if m:
             return r'${VS%s%sCOMNTOOLS}\vsvars32 &&' % (m.group(1), m.group(2) or '0')
         return ''
