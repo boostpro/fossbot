@@ -13,28 +13,6 @@ import re
 
 from buildbot.process.properties import WithProperties
 
-class interpolated(object):
-    def __init__(self, fn):
-        self.fn = fn
-
-    def __get__(self, obj, objtype):
-        return objtype('%%(%s)s' % self.fn.__name__)
-
-def make(p):
-    return p['os'].startswith('win') and 'nmake' or 'make'
-
-def make_continue_opt(p):
-    return p['os'].startswith('win') and '/K' or '-k' 
-
-def nil(p):
-    return p['os'].startswith('win') and 'rem' or 'true'
-
-def shell(p):
-    return p['os'].startswith('win') and 'cmd' or 'sh'
-
-def shell_cmd_opt(p):
-    return p['os'].startswith('win') and '/c' or '-c'
-
 class Portable(WithProperties):
     def __init__(self, fmt, **kw):
         kw = kw.copy()
