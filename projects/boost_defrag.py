@@ -96,19 +96,19 @@ class DefragTests(BuildProcedure):
                     }),
 
             Configure(
-                env=WithProperties('%(environ)s'),
+                env=WithProperties('%(toolset_environ)s'),
                 workdir=variant,
                 command = [
                     'cmake', '-DBOOST_UPDATE_SOURCE=1', '-DBOOST_DEBIAN_PACKAGES=1', 
                     '-DCMAKE_BUILD_TYPE='+variant, WithProperties('%(src)s') ] ),
 
             Compile(
-                env=WithProperties('%(environ)s'),
+                env=WithProperties('%(toolset_environ)s'),
                 workdir=variant, 
                 command = [ Portable.make, Portable.make_continue_opt ]),
 
             Test(
-                env=WithProperties('%(environ)s'),
+                env=WithProperties('%(toolset_environ)s'),
                 workdir=variant, 
                 command = [ Portable.make, Portable.make_continue_opt, 'test' ]),
             )
