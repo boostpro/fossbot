@@ -31,13 +31,13 @@ class Portable(WithProperties):
         WithProperties.__init__(self, fmt, **kw)
 
     @interpolated
-    def setup(p):
+    def get_toolset_environ(p):
         if p['os'].startswith('win'):
             m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p['cc'])
             if m:
-                return r'${VS%s%sCOMNTOOLS}\vsvars32' % (m.group(1), m.group(2) or '0')
+                return r'${VS%s%sCOMNTOOLS}\vsvars32 && python -c "import os;print os.environ"' % (m.group(1), m.group(2) or '0')
             else:
-                return 'title'
+                return 'rem'
         return 'true'
 
     @interpolated
@@ -52,26 +52,43 @@ class Portable(WithProperties):
     def nil(p):
         return p['os'].startswith('win') and 'echo' or 'true'
 
+    @interpolated
+    def shell(p):
+        return p['os'].startswith('win') and 'cmd' or 'sh'
+
+    @interpolated
+    def shell_cmd_opt(p):
+        return p['os'].startswith('win') and '/c' or '-c'
+
+
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
         BuildProcedure.__init__(self, 'Boost.Defrag')
 
-        self.addStep(
-            Git('http://github.com/%s.git' % repo, workdir='source'))
+        self.addSteps(
+            Git('http://github.com/%s.git' % repo, workdir='source'),
+
+            SetProperty(
+                description = 'Toolset setup',
+                command = [ Portable.shell, Portable.shell_cmd_opt, Portable.get_toolset_environ ],
+                extract_fn=
+                  lambda status,out,err: dict( tool_environ=eval(out.strip() or 'None') )),
+            )
 
         self.test('Debug')
         self.test('Release')
 
         self.step(
             ShellCommand(
-                command = ['make', 'documentation', '-k'],
+                env=WithProperties('%(tool_environ)s'),
+                workdir='Release',
+                command = [Portable.make, 'documentation', '-k'],
                 description='Documentation'))
 
     def test(self, variant):
-        setup = [] # [ Portable.setup, '&&' ]
-
         self.addSteps(
             SetProperty(
+                description = 'Variant setup',
                 command = [Portable.nil],
                 extract_fn=lambda status,out,err: { 
                     'variant':variant, 
@@ -79,18 +96,21 @@ class DefragTests(BuildProcedure):
                     }),
 
             Configure(
+                env=WithProperties('%(environ)s'),
                 workdir=variant,
-                command = setup + [
+                command = [
                     'cmake', '-DBOOST_UPDATE_SOURCE=1', '-DBOOST_DEBIAN_PACKAGES=1', 
                     '-DCMAKE_BUILD_TYPE='+variant, WithProperties('%(src)s') ] ),
 
             Compile(
+                env=WithProperties('%(environ)s'),
                 workdir=variant, 
-                command = setup + [ Portable.make, Portable.make_continue_opt ]),
+                command = [ Portable.make, Portable.make_continue_opt ]),
 
             Test(
+                env=WithProperties('%(environ)s'),
                 workdir=variant, 
-                command = setup + [ Portable.make, Portable.make_continue_opt, 'test' ]),
+                command = [ Portable.make, Portable.make_continue_opt, 'test' ]),
             )
 
 
