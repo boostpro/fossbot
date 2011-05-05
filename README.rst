@@ -1,0 +1,4 @@
+BoostPro FOSSBot Configuration
+==============================
+
+writeme
