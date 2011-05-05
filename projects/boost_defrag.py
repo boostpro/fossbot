@@ -5,13 +5,13 @@ from fossbot.bbot.memoize import memoize
 
 from buildbot.steps.source import Git
 from buildbot.steps.shell import Configure, Compile, Test, ShellCommand, SetProperty
-from buildbot.process.properties import WithProperties
 
 import buildbot.process.properties
 from buildbot import util
 from collections import Callable
 import re
 
+from buildbot.process.properties import WithProperties
 
 class Portable(WithProperties):
     def __init__(self, fmt, **kw):
