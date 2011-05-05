@@ -36,7 +36,7 @@ class Portable(WithProperties):
         return p['os'].startswith('win') and '/K' or '-k' 
 
     def nil(p):
-        return p['os'].startswith('win') and 'echo' or 'true'
+        return p['os'].startswith('win') and 'rem' or 'true'
 
     def shell(p):
         return p['os'].startswith('win') and 'cmd' or 'sh'
@@ -66,7 +66,7 @@ class DefragTests(BuildProcedure):
         return 
 
     def test(self, variant):
-        srcdir = (variant == 'Debug' and '..%(slash)ssource' or '..%(slash)sDebug%(slash)smonolithic')
+        srcdir = (variant == 'Debug' and '"..%(slash)ssource"' or '"..%(slash)sDebug%(slash)smonolithic"')
 
         self.addSteps(
             Configure(
