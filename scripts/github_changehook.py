@@ -14,7 +14,7 @@ import re
 import sys
 import traceback
 from twisted.web import server, resource
-from twisted.internet import reactor, utils
+from twisted.internet import reactor, utils, defer
 from twisted.spread import pb
 from twisted.cred import credentials
 from optparse import OptionParser
@@ -145,31 +145,42 @@ class GitHubBot(GitHubChangeListener):
         self.src_dir = src_dir
         GitHubChangeListener.__init__(self)
 
+    @defer.deferredGenerator
     def process_changes(self, changes):
 
-        step1 = utils.getProcessOutputAndValue(
-            '/usr/local/bin/git', ['pull'], path=self.src_dir)
+        logging.debug(">>>>>>>> processing changes: %s" % changes)
+        logging.debug(">>>>>>>> git fetch:")
+        x = defer.waitForDeferred(
+            utils.getProcessOutputAndValue(
+                '/usr/local/bin/git', ['--no-pager', 'fetch', '--all'], path=self.src_dir))
+        yield x
+        out,err,code = x.getResult()
+        if code != 0: raise OSError, str(code)+': '+err
 
-        def post_pull(out_err_code):
-            out,err,code = out_err_code
-            if code != 0: raise OSError, str(code)+': '+err
-            step2 = utils.getProcessOutputAndValue(
-                '/usr/local/bin/git', ['submodule', 'update', '--init'], path=self.src_dir)
+        logging.debug(">>>>>>>> git reset:")
+        logging.debug("processing changes: %s" % changes)
+        x = defer.waitForDeferred(
+            utils.getProcessOutputAndValue(
+                '/usr/local/bin/git', ['--no-pager', 'reset', '--hard', 'origin/master' ], path=self.src_dir))
+        yield x
+        out,err,code = x.getResult()
+        if code != 0: raise OSError, str(code)+': '+err
 
-            def post_submodule(out_err_code):
-                out,err,code = out_err_code
-                if code != 0: raise OSError, str(code)+': '+err
-                step3 = utils.getProcessOutputAndValue(
-                    'buildbot', ['reconfig'], path=self.master_dir)
-                
-                def post_reconfig(out_err_code):
-                    out,err,code = out_err_code
-                    if code != 0: raise OSError, str(code)+': '+err
+        logging.debug(">>>>>>>> git submodule:")
+        x = defer.waitForDeferred(
+            utils.getProcessOutputAndValue(
+                '/usr/local/bin/git', ['--no-pager', 'submodule', 'update', '--init' ], path=self.src_dir))
+        yield x
+        out,err,code = x.getResult()
+        if code != 0: raise OSError, str(code)+': '+err
 
-                step3.addCallback(post_reconfig)
-            step2.addCallback(post_submodule)
-        step1.addCallback(post_pull)
-        
+        logging.debug(">>>>>>>> buildbot reconfig:")
+        x = utils.getProcessOutputAndValue(
+                '/usr/bin/buildbot', ['reconfig'], path=self.src_dir)
+        yield x
+        out,err,code = x.getResult()
+        if code != 0: raise OSError, str(code)+': '+err
+        logging.debug(">>>>>>>> done.")
 
 def main():
     """
