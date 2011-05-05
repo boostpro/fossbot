@@ -176,7 +176,7 @@ class GitHubBot(GitHubChangeListener):
 
         logging.debug(">>>>>>>> buildbot reconfig:")
         x = utils.getProcessOutputAndValue(
-                '/usr/bin/buildbot', ['reconfig'], path=self.src_dir)
+                '/usr/bin/buildbot', ['reconfig'], path=self.master_dir)
         yield x
         out,err,code = x.getResult()
         if code != 0: raise OSError, str(code)+': '+err
