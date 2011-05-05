@@ -89,7 +89,7 @@ name = 'Boost.Defrag'
 hub_repo = 'ryppl/' + name
 
 
-include_properties=['os', 'cc']
+include_features=['os', 'cc']
 
 repositories=[GitHub(hub_repo)]
 

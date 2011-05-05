@@ -10,11 +10,11 @@ BuildmasterConfig = bbot.master(
     slaves = [
         Slave(
             'boostpro-win03-1',
-            properties=dict(os='win32', cc=['vc7.1', 'vc8', 'vc9', 'vc10'], emacs='23.3')),
+            features=dict(os='win32', cc=['vc7.1', 'vc8', 'vc9', 'vc10'], emacs='23.3')),
         
         Slave(
             'boostpro-ubu11.04-1',
-            properties=dict(os='linux', cc=['gcc'], emacs='23.3')),
+            features=dict(os='linux', cc=['gcc'], emacs='23.3')),
         ],
 
     projects = 'fossbot.projects',

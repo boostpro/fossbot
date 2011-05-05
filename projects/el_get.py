@@ -8,7 +8,7 @@ name = 'el-get'
 
 repositories=[GitHub('dimitri/el-get'), GitHub('dabrahams/el-get')]
 
-include_properties=['os', 'emacs']
+include_features=['os', 'emacs']
             
 build_procedures=[GitHubElisp('dimitri/el-get')]
 
