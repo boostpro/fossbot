@@ -78,11 +78,11 @@ class DefragTests(BuildProcedure):
 
             Compile(
                 workdir=variant, 
-                command = Portable('%(tool_env)s %(make)s %(.make_continue_opt)')),
+                command = Portable('%(tool_env)s %(make)s %(.make_continue_opt)s')),
 
             Test(
                 workdir=variant, 
-                command = Portable('%(tool_env)s %(make)s %(.make_continue_opt) test ')))
+                command = Portable('%(tool_env)s %(make)s %(.make_continue_opt)s test ')))
 
 
 name = 'Boost.Defrag'
