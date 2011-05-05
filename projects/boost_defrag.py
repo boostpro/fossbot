@@ -26,7 +26,7 @@ class Portable(WithProperties):
     def tool_env(p):
         m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p['cc'])
         if m:
-            return r'"%%VS%s%sCOMNTOOLS%%vsvars32" &&' % (m.group(1), m.group(2) or '0')
+            return r'"%%VS%s%sCOMNTOOLS%%vsvars32.bat" &&' % (m.group(1), m.group(2) or '0')
         return ''
 
     def make(p):
