@@ -103,5 +103,5 @@ status=[
         channels=["#ryppl"]),
 
     MailNotifier(fromaddr="buildbot@boostpro.com",
-                 extraRecipients=["el-get-devel@tapoueh.org"],
+                 extraRecipients=["ryppl-dev@googlegroups.com"],
                  mode='problem')]
