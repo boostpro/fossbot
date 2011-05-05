@@ -2,4 +2,3 @@ BoostPro FOSSBot Configuration
 ==============================
 
 writeme
-
