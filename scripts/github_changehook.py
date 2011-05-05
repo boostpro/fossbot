@@ -155,7 +155,7 @@ class GitHubBot(GitHubChangeListener):
                 '/usr/local/bin/git', ['--no-pager', 'fetch', '--all'], path=self.src_dir))
         yield x
         out,err,code = x.getResult()
-        if code != 0: raise OSError, str(code)+': '+err
+        if code != 0: return logging.error('(%d) in git fetch: %s' % (code, err))
 
         logging.debug(">>>>>>>> git reset:")
         logging.debug("processing changes: %s" % changes)
@@ -164,7 +164,7 @@ class GitHubBot(GitHubChangeListener):
                 '/usr/local/bin/git', ['--no-pager', 'reset', '--hard', 'origin/master' ], path=self.src_dir))
         yield x
         out,err,code = x.getResult()
-        if code != 0: raise OSError, str(code)+': '+err
+        if code != 0: return logging.error('(%d) in git reset: %s' % (code, err))
 
         logging.debug(">>>>>>>> git submodule:")
         x = defer.waitForDeferred(
@@ -172,14 +172,13 @@ class GitHubBot(GitHubChangeListener):
                 '/usr/local/bin/git', ['--no-pager', 'submodule', 'update', '--init' ], path=self.src_dir))
         yield x
         out,err,code = x.getResult()
-        if code != 0: raise OSError, str(code)+': '+err
+        if code != 0: return logging.error('(%d) in git submodule: %s' % (code, err))
 
         logging.debug(">>>>>>>> buildbot reconfig:")
         x = utils.getProcessOutputAndValue(
                 '/usr/bin/buildbot', ['reconfig'], path=self.master_dir)
         yield x
-        out,err,code = x.getResult()
-        if code != 0: raise OSError, str(code)+': '+err
+        if code != 0: return logging.error('(%d) in buildbot reconfig: %s' % (code, err))
         logging.debug(">>>>>>>> done.")
 
 def main():
