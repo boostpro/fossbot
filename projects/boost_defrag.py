@@ -16,46 +16,73 @@ from twisted.python import log
 if 'Portable' in globals():
     log.msg('reloading '+__name__)
 
+msvc = re.compile(r'vc([0-9]+)(?:\.([0-9]))?')
+
 class Portable(WithProperties):
+
+    class word(object):
+        def __init__(self, fn):
+            self.fn = fn
+
+        def __get__(self, obj, objtype):
+            return objtype('%%(%s)s' % self.fn.__name__)
+
     def __init__(self, fmt, **kw):
         kw = kw.copy()
 
         for name in re.findall(r'(?<!%)%[(]([A-Za-z_]\w*)[)]', fmt):
             f = self.__class__.__dict__.get(name, None)
+            if isinstance(f, Portable.word): f=f.fn
             if f: kw[name] = f
 
         WithProperties.__init__(self, fmt, **kw)
 
+    @word
     def tool_path(p):
-        m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p['cc'])
+        m = msvc.match(p['cc'])
         if m:
             return r'${VS%s%sCOMNTOOLS};${PATH}' % (m.group(1), m.group(2) or '0')
         return '${PATH}'
 
+    @word
     def tool_setup(p):
-        m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p['cc'])
+        m = msvc.match(p['cc'])
         if m:
-            return r'vsvars32.bat &&'
+            return r'vsvars32.bat'
         return ''
 
+    @word
     def make(p):
         return p['os'].startswith('win') and 'nmake' or 'make'
 
+    @word
     def make_continue_opt(p):
         return p['os'].startswith('win') and '/K' or '-k' 
 
+    @word
     def nil(p):
         return p['os'].startswith('win') and 'rem' or 'true'
 
+    @word
     def shell(p):
         return p['os'].startswith('win') and 'cmd' or 'sh'
 
+    @word
     def shell_cmd_opt(p):
         return p['os'].startswith('win') and '/c' or '-c'
 
     def slash(p):
         return p['os'].startswith('win') and '\\' or '/'
 
+
+class CMake(Configure):
+    def start(self):
+        cc = self.build.getProperties().getProperty('cc', '')
+        if msvc.match(cc):
+            self.setCommand([Portable.tool_setup, '&&', 'cmake', '-GNMake Makefiles'] + self.command)
+        else:
+            self.setCommand(['cmake'] + self.command)
+        Configure.start(self)
 
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
@@ -64,34 +91,36 @@ class DefragTests(BuildProcedure):
         self.test('Debug')
         self.test('Release')
 
+        _ = Portable
         self.step(
             ShellCommand(
                 workdir='Release',
-                env=dict(PATH=Portable('%(tool_path)s')),
-                command = Portable('%(tool_setup)s %(make)s %(make_continue_opt)s documentation'),
+                env=dict(PATH=_.tool_path),
+                command = [_.make, _.make_continue_opt, 'documentation'],
                 description='Documentation'))
 
     def test(self, variant):
-        srcdir = (variant == 'Debug' and '..%(slash)ssource' or '..%(slash)sDebug%(slash)smonolithic')
+        _ = Portable
+        srcdir = _(variant == 'Debug' and '..%(slash)ssource' 
+                   or '..%(slash)sDebug%(slash)smonolithic')
 
         self.addSteps(
-            Configure(
+            CMake(
                 workdir=variant,
-                env=dict(PATH=Portable('%(tool_path)s')),
-                command = Portable(
-                    '%(tool_setup)s cmake -DBOOST_UPDATE_SOURCE=1'
-                    ' -DBOOST_DEBIAN_PACKAGES=1 -DCMAKE_BUILD_TYPE='+variant+' '
-                    + srcdir)),
-
+                env=dict(PATH=_.tool_path),
+                command = [
+                    '-DBOOST_UPDATE_SOURCE=1',
+                    ' -DBOOST_DEBIAN_PACKAGES=1', '-DCMAKE_BUILD_TYPE='+variant,
+                    srcdir]),
             Compile(
                 workdir=variant, 
-                env=dict(PATH=Portable('%(tool_path)s')),
-                command = Portable('%(tool_setup)s %(make)s %(make_continue_opt)s')),
-
+                env=dict(PATH=_.tool_path),
+                command = [_.make, _.make_continue_opt]),
             Test(
                 workdir=variant, 
-                env=dict(PATH=Portable('%(tool_path)s')),
-                command = Portable('%(tool_setup)s %(make)s %(make_continue_opt)s test ')))
+                env=dict(PATH=_.tool_path),
+                command = [_.make, _.make_continue_opt, 'test']),
+            )
 
 
 name = 'Boost.Defrag'
