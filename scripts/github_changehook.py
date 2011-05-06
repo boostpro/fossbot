@@ -156,7 +156,7 @@ class GitHubBot(GitHubChangeListener):
         yield x
         out,err,code = x.getResult()
         if code != 0: 
-            logging.error('(%d) in git fetch: %s' % (code, err))
+            logging.error('(%s) in git fetch: %s' % (code, err))
             return
 
         logging.debug(">>>>>>>> git reset:")
@@ -167,7 +167,7 @@ class GitHubBot(GitHubChangeListener):
         yield x
         out,err,code = x.getResult()
         if code != 0: 
-            logging.error('(%d) in git reset: %s' % (code, err))
+            logging.error('(%s) in git reset: %s' % (code, err))
             return
 
         logging.debug(">>>>>>>> git submodule:")
@@ -177,7 +177,7 @@ class GitHubBot(GitHubChangeListener):
         yield x
         out,err,code = x.getResult()
         if code != 0: 
-            logging.error('(%d) in git submodule: %s' % (code, err))
+            logging.error('(%s) in git submodule: %s' % (code, err))
             return
 
         logging.debug(">>>>>>>> buildbot reconfig:")
@@ -185,7 +185,7 @@ class GitHubBot(GitHubChangeListener):
                 '/usr/bin/buildbot', ['reconfig'], path=self.master_dir)
         yield x
         if code != 0: 
-            logging.error('(%d) in buildbot reconfig: %s' % (code, err))
+            logging.error('(%s) in buildbot reconfig: %s' % (code, err))
             return
         logging.debug(">>>>>>>> done.")
 
