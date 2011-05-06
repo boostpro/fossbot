@@ -26,10 +26,16 @@ class Portable(WithProperties):
 
         WithProperties.__init__(self, fmt, **kw)
 
-    def tool_env(p):
+    def tool_path(p):
         m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p['cc'])
         if m:
-            return r'"%%VS%s%sCOMNTOOLS%%vsvars32.bat" &&' % (m.group(1), m.group(2) or '0')
+            return r'%%VS%s%sCOMNTOOLS%%;${PATH}' % (m.group(1), m.group(2) or '0')
+        return '${PATH}'
+
+    def tool_setup(p):
+        m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p['cc'])
+        if m:
+            return r'vsvars32.bat &&'
         return ''
 
     def make(p):
@@ -61,7 +67,8 @@ class DefragTests(BuildProcedure):
         self.step(
             ShellCommand(
                 workdir='Release',
-                command = Portable('%(tool_env)s %(make)s %(make_continue_opt)s documentation'),
+                env=dict(PATH=Portable('%(tool_path)s')),
+                command = Portable('%(tool_setup)s %(make)s %(make_continue_opt)s documentation'),
                 description='Documentation'))
 
     def test(self, variant):
@@ -70,18 +77,21 @@ class DefragTests(BuildProcedure):
         self.addSteps(
             Configure(
                 workdir=variant,
+                env=dict(PATH=Portable('%(tool_path)s')),
                 command = Portable(
-                    '%(tool_env)s cmake -DBOOST_UPDATE_SOURCE=1'
+                    '%(tool_setup)s cmake -DBOOST_UPDATE_SOURCE=1'
                     ' -DBOOST_DEBIAN_PACKAGES=1 "-DCMAKE_BUILD_TYPE='+variant+'" '
                     + srcdir)),
 
             Compile(
                 workdir=variant, 
-                command = Portable('%(tool_env)s %(make)s %(.make_continue_opt)s')),
+                env=dict(PATH=Portable('%(tool_path)s')),
+                command = Portable('%(tool_setup)s %(make)s %(.make_continue_opt)s')),
 
             Test(
                 workdir=variant, 
-                command = Portable('%(tool_env)s %(make)s %(.make_continue_opt)s test ')))
+                env=dict(PATH=Portable('%(tool_path)s')),
+                command = Portable('%(tool_setup)s %(make)s %(.make_continue_opt)s test ')))
 
 
 name = 'Boost.Defrag'
