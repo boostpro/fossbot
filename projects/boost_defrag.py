@@ -12,6 +12,7 @@ from buildbot import util
 from collections import Callable
 import re
 
+import logging
 if 'Portable' in globals():
     logging.info('reloading', __name__)
 
