@@ -7,7 +7,7 @@ if 'BuildmasterConfig' in globals():
     log.msg('reloading '+__name__)
 
 # Monkeypatch to work around http://trac.buildbot.net/ticket/1948
-if real_compareToSetup not in globals():
+if 'real_compareToSetup' not in globals():
     from buildbot.process.builder import Builder
     real_compareToSetup = Builder.compareToSetup
     Builder.compareToSetup = lambda self, setup: real_compareToSetup(self,setup)+ ['forced update']
