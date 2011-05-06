@@ -29,7 +29,7 @@ class Portable(WithProperties):
     def tool_path(p):
         m = re.match(r'vc([0-9]+)(?:\.([0-9]))?', p['cc'])
         if m:
-            return r'%%VS%s%sCOMNTOOLS%%;${PATH}' % (m.group(1), m.group(2) or '0')
+            return r'${%VS%s%sCOMNTOOLS%};${PATH}' % (m.group(1), m.group(2) or '0')
         return '${PATH}'
 
     def tool_setup(p):
