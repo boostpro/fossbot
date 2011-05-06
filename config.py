@@ -2,9 +2,9 @@ import bbot
 from bbot.slave import Slave
 from bbot.status import GitHubWebStatus
 
-import logging
+from twisted.python import log
 if 'BuildmasterConfig' in globals():
-    logging.info('reloading', __name__)
+    log.msg('reloading '+__name__)
 
 BuildmasterConfig = bbot.master(
     title = 'BoostPro FOSSbot',
