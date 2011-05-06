@@ -12,6 +12,8 @@ from buildbot import util
 from collections import Callable
 import re
 
+if 'Portable' in globals():
+    logging.info('reloading', __name__)
 
 class Portable(WithProperties):
     def __init__(self, fmt, **kw):
