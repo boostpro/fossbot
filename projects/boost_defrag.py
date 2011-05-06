@@ -71,18 +71,25 @@ class Portable(WithProperties):
     def shell_cmd_opt(p):
         return p['os'].startswith('win') and '/c' or '-c'
 
+    @word
+    def cmake_generator_opt(p):
+        return p['os'].startswith('win') and '-GNMake Makefiles' or '-GUnix Makefiles'
+
     def slash(p):
         return p['os'].startswith('win') and '\\' or '/'
 
+def tool(cls, *args, **kw):
+    env = kw.setdefault('env', {})
+    env['PATH']=Portable.tool_path
 
-class CMake(Configure):
-    def start(self):
-        cc = self.build.getProperties().getProperty('cc', '')
-        if msvc.match(cc):
-            self.setCommand([Portable.tool_setup, '&&', 'cmake', '-GNMake Makefiles'] + self.command)
-        else:
-            self.setCommand(['cmake'] + self.command)
-        Configure.start(self)
+    class Tool(cls):
+        def start(self):
+            cc = self.build.getProperties().getProperty('cc', '')
+            if msvc.match(cc):
+                self.setCommand([Portable.tool_setup, '&&'] + self.command)
+            cls.start(self)
+
+    return Tool(*args, **kw)
 
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
@@ -93,9 +100,8 @@ class DefragTests(BuildProcedure):
 
         _ = Portable
         self.step(
-            ShellCommand(
+            tool(ShellCommand,
                 workdir='Release',
-                env=dict(PATH=_.tool_path),
                 command = [_.make, _.make_continue_opt, 'documentation'],
                 description='Documentation'))
 
@@ -105,20 +111,17 @@ class DefragTests(BuildProcedure):
                    or '..%(slash)sDebug%(slash)smonolithic')
 
         self.addSteps(
-            CMake(
+            tool(Configure,
                 workdir=variant,
-                env=dict(PATH=_.tool_path),
                 command = [
-                    '-DBOOST_UPDATE_SOURCE=1',
+                    'cmake', _.cmake_generator_opt, '-DBOOST_UPDATE_SOURCE=1',
                     ' -DBOOST_DEBIAN_PACKAGES=1', '-DCMAKE_BUILD_TYPE='+variant,
                     srcdir]),
-            Compile(
+            tool(Compile,
                 workdir=variant, 
-                env=dict(PATH=_.tool_path),
                 command = [_.make, _.make_continue_opt]),
-            Test(
+            tool(Test,
                 workdir=variant, 
-                env=dict(PATH=_.tool_path),
                 command = [_.make, _.make_continue_opt, 'test']),
             )
 
