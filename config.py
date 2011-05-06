@@ -6,6 +6,11 @@ from twisted.python import log
 if 'BuildmasterConfig' in globals():
     log.msg('reloading '+__name__)
 
+# Monkeypatch to work around http://trac.buildbot.net/ticket/1948
+from buildbot.process.builder import Builder
+real_compareToSetup = Builder.compareToSetup
+Builder.compareToSetup = lambda self, setup: real_compareToSetup(self,setup)+ ['forced update']
+
 BuildmasterConfig = bbot.master(
     title = 'BoostPro FOSSbot',
     titleURL = 'http://github.com/boostpro/fossbot',
