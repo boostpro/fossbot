@@ -64,10 +64,6 @@ class DefragTests(BuildProcedure):
                 command = Portable('%(tool_env)s %(make)s %(make_continue_opt)s documentation'),
                 description='Documentation'))
 
-    @staticmethod
-    def __srcdir(variant):
-        return 
-
     def test(self, variant):
         srcdir = (variant == 'Debug' and '"..%(slash)ssource"' or '"..%(slash)sDebug%(slash)smonolithic"')
 
