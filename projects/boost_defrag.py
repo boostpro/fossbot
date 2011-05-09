@@ -18,7 +18,7 @@ from twisted.python import log
 msvc = re.compile(r'vc([0-9]+)(?:\.([0-9]))?')
 
 def toolchain(props):
-    m = re.match(r'vc(([0-9]+)(?:\.([0-9]))?)', p.getProperty('cc',''))
+    m = re.match(r'vc(([0-9]+)(?:\.([0-9]))?)', props.getProperty('cc',''))
     if m:
         return r'vs' + m.group(1)
     return ''
