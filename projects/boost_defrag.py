@@ -1,3 +1,4 @@
+from buildbot.steps.source import Git
 from fossbot.bbot.repository import GitHub
 from fossbot.bbot.procedures import BuildProcedure
 from fossbot.bbot.status import IRC, MailNotifier
@@ -16,51 +17,15 @@ from twisted.python import log
 
 msvc = re.compile(r'vc([0-9]+)(?:\.([0-9]))?')
 
-
-    name = "Boost.Defrag"
-
-    def __init__(self):
-        """
-        """
-        Source.__init__(self)
-        self.addFactoryArguments(repourl=repourl,
-                                 branch=branch,
-                                 progress=progress,
-                                 )
-        self.args.update({'branch': branch,
-                          'progress': progress,
-                          })
-
-    def startVC(self, branch, revision, patch):
-        slavever = self.slaveVersion("mtn")
-        if not slavever:
-            raise BuildSlaveTooOldError("slave is too old, does not know "
-                                        "about mtn")
-
-        self.args['repourl'] = self.computeRepositoryURL(self.repourl)
-        if branch:
-            self.args['branch'] = branch
-        self.args['revision'] = revision
-        self.args['patch'] = patch
-
-        cmd = LoggedRemoteCommand("mtn", self.args)
-        self.startCommand(cmd)
-
-    def computeSourceRevision(self, changes):
-        if not changes:
-            return None
-        # without knowing the revision ancestry graph, we can't sort the
-        # changes at all. So for now, assume they were given to us in sorted
-        # order, and just pay attention to the last one. See ticket #103 for
-        # more details.
-        if len(changes) > 1:
-            log.msg("Monotone.computeSourceRevision: warning: "
-                    "there are %d changes here, assuming the last one is "
-                    "the most recent" % len(changes))
-        return changes[-1].revision
-
+def toolchain(props):
+    m = re.match(r'vc(([0-9]+)(?:\.([0-9]))?)', p.getProperty('cc',''))
+    if m:
+        return r'vs' + m.group(1)
+    return ''
+    
+    
 def cmake(step):
-    return ['cmake', '-DBUILDSTEP='+step, '-P', 'build.cmake']
+    return ['cmake', '-DBUILDSTEP='+step, WithProperties('-DTOOLCHAIN=%(tc)s', tc=toolchain), '-P', 'build.cmake']
 
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
@@ -70,7 +35,7 @@ class DefragTests(BuildProcedure):
             Git(repourl='git://github.com/%s.git' % repo),
             ShellCommand(command=cmake('aggregate'), description='Collect Modules'),
             Configure(command=cmake('configure')),
-            Build(command=cmake('build')),
+            Compile(command=cmake('build')),
             Test(command=cmake('test')),
             ShellCommand(command=cmake('package'), description='Package'))
 
