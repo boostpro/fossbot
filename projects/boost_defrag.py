@@ -3,7 +3,7 @@ from fossbot.bbot.procedures import BuildProcedure
 from fossbot.bbot.status import IRC, MailNotifier
 from fossbot.bbot.memoize import memoize
 
-from buildbot.steps.source import Git
+from buildbot.steps.source import Source
 from buildbot.steps.shell import Configure, Compile, Test, ShellCommand, SetProperty
 from buildbot.process.properties import WithProperties
 
@@ -13,122 +13,70 @@ from collections import Callable
 import re
 
 from twisted.python import log
-if 'Portable' in globals():
-    log.msg('reloading '+__name__)
 
 msvc = re.compile(r'vc([0-9]+)(?:\.([0-9]))?')
 
-class Portable(WithProperties):
 
-    class word(object):
-        def __init__(self, fn):
-            self.fn = fn
+    name = "Boost.Defrag"
 
-        def __get__(self, obj, objtype):
-            return objtype('%%(%s)s' % self.fn.__name__)
+    def __init__(self):
+        """
+        """
+        Source.__init__(self)
+        self.addFactoryArguments(repourl=repourl,
+                                 branch=branch,
+                                 progress=progress,
+                                 )
+        self.args.update({'branch': branch,
+                          'progress': progress,
+                          })
 
-    def __init__(self, fmt, **kw):
-        kw = kw.copy()
+    def startVC(self, branch, revision, patch):
+        slavever = self.slaveVersion("mtn")
+        if not slavever:
+            raise BuildSlaveTooOldError("slave is too old, does not know "
+                                        "about mtn")
 
-        for name in re.findall(r'(?<!%)%[(]([A-Za-z_]\w*)[)]', fmt):
-            f = self.__class__.__dict__.get(name, None)
-            if isinstance(f, Portable.word): f=f.fn
-            if f: kw[name] = f
+        self.args['repourl'] = self.computeRepositoryURL(self.repourl)
+        if branch:
+            self.args['branch'] = branch
+        self.args['revision'] = revision
+        self.args['patch'] = patch
 
-        WithProperties.__init__(self, fmt, **kw)
+        cmd = LoggedRemoteCommand("mtn", self.args)
+        self.startCommand(cmd)
 
-    @word
-    def tool_path(p):
-        m = msvc.match(p['cc'])
-        if m:
-            return r'${VS%s%sCOMNTOOLS};${PATH}' % (m.group(1), m.group(2) or '0')
-        return '${PATH}'
+    def computeSourceRevision(self, changes):
+        if not changes:
+            return None
+        # without knowing the revision ancestry graph, we can't sort the
+        # changes at all. So for now, assume they were given to us in sorted
+        # order, and just pay attention to the last one. See ticket #103 for
+        # more details.
+        if len(changes) > 1:
+            log.msg("Monotone.computeSourceRevision: warning: "
+                    "there are %d changes here, assuming the last one is "
+                    "the most recent" % len(changes))
+        return changes[-1].revision
 
-    @word
-    def tool_setup(p):
-        m = msvc.match(p['cc'])
-        if m:
-            return r'vsvars32.bat'
-        return ''
-
-    @word
-    def make(p):
-        return p['os'].startswith('win') and 'nmake' or 'make'
-
-    @word
-    def make_continue_opt(p):
-        return p['os'].startswith('win') and '/K' or '-k' 
-
-    @word
-    def nil(p):
-        return p['os'].startswith('win') and 'rem' or 'true'
-
-    @word
-    def shell(p):
-        return p['os'].startswith('win') and 'cmd' or 'sh'
-
-    @word
-    def shell_cmd_opt(p):
-        return p['os'].startswith('win') and '/c' or '-c'
-
-    @word
-    def cmake_generator_opt(p):
-        return p['os'].startswith('win') and '-GNMake Makefiles' or '-GUnix Makefiles'
-
-    def slash(p):
-        return p['os'].startswith('win') and '\\' or '/'
-
-def tool(cls, *args, **kw):
-    env = kw.setdefault('env', {})
-    env['PATH']=Portable.tool_path
-
-    class Tool(cls):
-        def start(self):
-            cc = self.build.getProperties().getProperty('cc', '')
-            if msvc.match(cc):
-                self.setCommand([Portable.tool_setup, '&&'] + self.command)
-            cls.start(self)
-
-    return Tool(*args, **kw)
+def cmake(step):
+    return ['cmake', '-DBUILDSTEP='+step, '-P', 'build.cmake']
 
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
         BuildProcedure.__init__(self, 'Boost.Defrag')
 
-        self.test('Debug')
-        self.test('Release')
-
-        _ = Portable
-        self.step(
-            tool(ShellCommand,
-                workdir='Release',
-                command = [_.make, _.make_continue_opt, 'documentation'],
-                description='Documentation'))
-
-    def test(self, variant):
-        _ = Portable
-        srcdir = _(variant == 'Debug' and '..%(slash)ssource' 
-                   or '..%(slash)sDebug%(slash)smonolithic')
-
         self.addSteps(
-            tool(Configure,
-                workdir=variant,
-                command = [
-                    'cmake', _.cmake_generator_opt, '-DBOOST_UPDATE_SOURCE=1',
-                    ' -DBOOST_DEBIAN_PACKAGES=1', '-DCMAKE_BUILD_TYPE='+variant,
-                    srcdir]),
-            tool(Compile,
-                workdir=variant, 
-                command = [_.make, _.make_continue_opt]),
-            tool(Test,
-                workdir=variant, 
-                command = [_.make, _.make_continue_opt, 'test']),
-            )
+            Git(repourl='git://github.com/%s.git' % repo),
+            ShellCommand(command=cmake('aggregate'), description='Collect Modules'),
+            Configure(command=cmake('configure')),
+            Build(command=cmake('build')),
+            Test(command=cmake('test')),
+            ShellCommand(command=cmake('package'), description='Package'))
 
 
 name = 'Boost.Defrag'
 hub_repo = 'ryppl/' + name
-
 
 include_features=['os', 'cc']
 
