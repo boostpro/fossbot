@@ -17,15 +17,23 @@ from twisted.python import log
 
 msvc = re.compile(r'vc([0-9]+)(?:\.([0-9]))?')
 
-def toolchain(props):
+def cmake_toolchain(props):
     m = re.match(r'vc(([0-9]+)(?:\.([0-9]))?)', props.getProperty('cc',''))
     if m:
         return r'vs' + m.group(1)
     return ''
-    
-    
+cmake_toolchain_opt = WithProperties('-DTOOLCHAIN=%(tc)s', tc=cmake_toolchain)
+
+def on_windows(props):    
+    return props.getProperty('os','').startswith('win') and '/K' or '-k'
+
+cmake_continue_opt = WithProperties(
+    '%(x)s',x=lambda p: on_windows(p) and '/K' or '-k')
+
 def cmake(step):
-    return ['cmake', '-DBUILDSTEP='+step, WithProperties('-DTOOLCHAIN=%(tc)s', tc=toolchain), '-P', 'build.cmake']
+    return ['cmake', cmake_continue_opt, 
+            '-DBUILDSTEP='+step, cmake_toolchain_opt, 
+            '-P', 'build.cmake']
 
 class DefragTests(BuildProcedure):
     def __init__(self, repo):
