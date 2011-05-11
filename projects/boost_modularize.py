@@ -8,6 +8,8 @@ from buildbot import util
 
 name = 'Boost.Modularize'
 
+include_features=['modbot']
+
 repositories=[GitHub('boost-lib/boost-supermodule', protocol='ssh'),
               GitHub('ryppl/boost-svn'),
               GitHub('boost-lib/boost-modularize'),
