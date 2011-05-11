@@ -17,13 +17,18 @@ repositories=[GitHub('boost-lib/boost-supermodule', protocol='ssh'),
 
 build_procedures=[ 
     BuildProcedure('Modularize')
-    .addSteps(
-        *[repo.step(workdir=repo.name) for repo in repositories]
-         + [ShellCommand(
+    .addSteps(*
+        [repo.step(
+                workdir=repo.name, 
+                alwaysUseLatest=repo.name != 'boost-svn'
+                ) 
+          for repo in repositories]
+        +
+        [ShellCommand(
                 command=['python', 'modularize.py', '--src=../boost-svn', '--dst=../boost-supermodule>', cmd],
                 description=cmd,
                 )
-            for cmd in ('update', 'push')])
+         for cmd in ('update', 'push')])
     ]
 
 transitions={'successToFailure' : 1,'failureToSuccess' : 1, 'exception':1}
