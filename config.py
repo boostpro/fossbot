@@ -19,6 +19,11 @@ BuildmasterConfig = bbot.master(
 
     slaves = [
         Slave(
+            'boostpro-ubu11.04-1', max_builds=2,
+            features=dict(os='linux', cc=['gcc'], emacs='23.3')),
+        ],
+
+        Slave(
             'boostpro-win03-1', max_builds=2,
             features=dict(
                 os='win32', 
@@ -29,11 +34,6 @@ BuildmasterConfig = bbot.master(
                 )
             ),
         
-        Slave(
-            'boostpro-ubu11.04-1', max_builds=2,
-            features=dict(os='linux', cc=['gcc'], emacs='23.3')),
-        ],
-
     projects = 'fossbot.projects',
     status = [GitHubWebStatus(http_port='tcp:8010:interface=127.0.0.1')()],
     )
