@@ -21,7 +21,6 @@ BuildmasterConfig = bbot.master(
         Slave(
             'boostpro-ubu11.04-1', max_builds=2,
             features=dict(os='linux', cc=['gcc'], emacs='23.3', modbot='x')),
-        ],
 
         Slave(
             'boostpro-win03-1', max_builds=2,
@@ -33,7 +32,9 @@ BuildmasterConfig = bbot.master(
                 modbot='x',
                 )
             ),
+        ],
         
     projects = 'fossbot.projects',
     status = [GitHubWebStatus(http_port='tcp:8010:interface=127.0.0.1')()],
     )
+
