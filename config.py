@@ -29,7 +29,9 @@ BuildmasterConfig = bbot.master(
                 cc=['vc7.1', 'vc8', 'vc9', 'vc10'], 
                 emacs='23.3', 
                 # the slave has commit rights on the modularized boost at http://github.com/boost-lib
-                modbot='x',
+                # but currently modularization doesn't seem to work there
+
+                # modbot='x',
                 )
             ),
         ],
