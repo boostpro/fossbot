@@ -21,14 +21,16 @@ build_procedures=[
         [repo.step(
                 workdir=repo.name, 
                 alwaysUseLatest=True,
-                name='Git(%s)' % repo.name
+                name='Git(%s)' % repo.name,
+                haltOnFailure=True
                 ) 
           for repo in repositories]
         +
         [ShellCommand(
                 command=['python', 'modularize.py', '--src=../boost-svn', '--dst=../boost-supermodule', cmd],
                 name='modularize(%s)' % cmd,
-                workdir='boost-modularize'
+                workdir='boost-modularize',
+                haltOnFailure=True
                 )
          for cmd in ('update', 'push')])
     ]
