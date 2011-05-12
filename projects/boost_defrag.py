@@ -41,11 +41,11 @@ class DefragTests(BuildProcedure):
 
         self.addSteps(
             Git(repourl='git://github.com/%s.git' % repo),
-            ShellCommand(command=cmake('aggregate'), description='Collect Modules'),
+            ShellCommand(command=cmake('aggregate'), name='Collect Modules'),
             Configure(command=cmake('configure')),
             Compile(command=cmake('build')),
             Test(command=cmake('test')),
-            ShellCommand(command=cmake('package'), description='Package'))
+            ShellCommand(command=cmake('package'), name='Package'))
 
 
 name = 'Boost.Defrag'
