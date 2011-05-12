@@ -26,7 +26,7 @@ build_procedures=[
           for repo in repositories]
         +
         [ShellCommand(
-                command=['python', 'modularize.py', '--src=../boost-svn', '--dst=../boost-supermodule>', cmd],
+                command=['python', 'modularize.py', '--src=../boost-svn', '--dst=../boost-supermodule', cmd],
                 description='modularize: %s' % cmd,
                 workdir='boost-modularize'
                 )
