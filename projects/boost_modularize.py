@@ -20,7 +20,7 @@ build_procedures=[
     .addSteps(*
         [repo.step(
                 workdir=repo.name, 
-                alwaysUseLatest=repo.name != 'boost-svn',
+                alwaysUseLatest=True,
                 description='Git (%s)' % repo.name
                 ) 
           for repo in repositories]
