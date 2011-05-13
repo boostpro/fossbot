@@ -35,7 +35,7 @@ def cmake(step):
             '-DBUILDSTEP='+step, cmake_toolchain_opt, 
             '-P', 'build.cmake']
 
-class DefragTests(BuildProcedure):
+class IntegrationTest(BuildProcedure):
     def __init__(self, repo):
         BuildProcedure.__init__(self, 'Integration Test')
 
@@ -54,7 +54,7 @@ include_features=['os', 'cc']
 
 repositories=[GitHub(hub_repo)]
 
-build_procedures=[ DefragTests(hub_repo) ]
+build_procedures=[ IntegrationTest(hub_repo) ]
 
 transitions={'successToFailure' : 1,'failureToSuccess' : 1, 'exception':1}
 
