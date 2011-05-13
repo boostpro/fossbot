@@ -40,7 +40,7 @@ class IntegrationTest(BuildProcedure):
         BuildProcedure.__init__(self, 'Integration Test')
 
         self.addSteps(
-            Git(repourl='git://github.com/%s.git' % repo, haltOnFailure=True),
+            Git(repourl='https://github.com/boost-lib/boost-supermodule/%s.git' % repo, haltOnFailure=True),
             Configure(command=cmake('configure'), haltOnFailure=True, alwaysRun=True),
             Compile(command=cmake('build'), haltOnFailure=True, alwaysRun=True),
             Test(command=cmake('test'), haltOnFailure=True, alwaysRun=True),
@@ -52,7 +52,7 @@ hub_repo = 'boost-lib/boost-supermodule'
 
 include_features=['os', 'cc']
 
-repositories=[GitHub(hub_repo)]
+repositories=[GitHub(hub_repo, protocol='https')]
 
 build_procedures=[ IntegrationTest(hub_repo) ]
 
