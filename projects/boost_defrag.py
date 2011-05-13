@@ -25,7 +25,7 @@ def cmake_toolchain(props):
 cmake_toolchain_opt = WithProperties('-DTOOLCHAIN=%(tc)s', tc=cmake_toolchain)
 
 def on_windows(props):    
-    return props.getProperty('os','').startswith('win') and '/K' or '-k'
+    return props.getProperty('os','').startswith('win')
 
 cmake_continue_opt = WithProperties(
     '%(x)s',x=lambda p: on_windows(p) and '/K' or '-k')
