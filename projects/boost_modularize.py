@@ -10,7 +10,7 @@ name = 'Boost.Modularize'
 
 include_features=['modbot']
 
-repositories=[GitHub('boost-lib/boost-supermodule', protocol='ssh'),
+repositories=[GitHub('boost-lib/boost', protocol='ssh'),
               GitHub('ryppl/boost-svn'),
               GitHub('boost-lib/boost-modularize'),
               ]
@@ -27,7 +27,7 @@ build_procedures=[
           for repo in repositories]
         +
         [ShellCommand(
-                command=['python', 'modularize.py', '--src=../boost-svn', '--dst=../boost-supermodule', cmd],
+                command=['python', 'modularize.py', '--src=../boost-svn', '--dst=../boost', cmd],
                 name='modularize(%s)' % cmd,
                 workdir='boost-modularize',
                 haltOnFailure=True

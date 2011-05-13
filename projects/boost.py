@@ -48,7 +48,7 @@ class IntegrationTest(BuildProcedure):
 
 
 name = 'Boost'
-hub_repo = 'boost-lib/boost-supermodule'
+hub_repo = 'boost-lib/boost'
 
 include_features=['os', 'cc']
 
