@@ -32,19 +32,9 @@ cmake_continue_opt = WithProperties(
 
 def cmake(step):
     return ['cmake', cmake_continue_opt, 
+            '-DBUILDDIR=../build',
             '-DBUILDSTEP='+step, cmake_toolchain_opt, 
             '-P', 'build.cmake']
-
-class IntegrationTest(BuildProcedure):
-    def __init__(self, repo):
-        BuildProcedure.__init__(self, 'Integration')
-
-        self.addSteps(
-            Git(repourl='git://github.com/%s.git' % repo, haltOnFailure=True),
-            Configure(command=cmake('configure'), haltOnFailure=True, alwaysRun=True),
-            Compile(command=cmake('build'), haltOnFailure=True, alwaysRun=True),
-            Test(command=cmake('test'), haltOnFailure=True, alwaysRun=True),
-            ShellCommand(command=cmake('package'), name='Package'))
 
 
 name = 'Boost'
@@ -54,7 +44,15 @@ include_features=['os', 'cc']
 
 repositories=[GitHub(hub_repo, protocol='https')]
 
-build_procedures=[ IntegrationTest(hub_repo) ]
+build_procedures=[ 
+    BuildProcedure('Integration')
+    .addSteps(
+        repositories[0].step(workdir='boost', haltOnFailure=True),
+        Configure(workdir='boost', command=cmake('configure'), haltOnFailure=True, alwaysRun=True),
+        Compile(workdir='boost', command=cmake('build'), haltOnFailure=True, alwaysRun=True),
+        Test(workdir='boost', command=cmake('test'), haltOnFailure=True, alwaysRun=True),
+        ShellCommand(workdir='boost', command=cmake('package'), name='Package'))
+]
 
 transitions={'successToFailure' : 1,'failureToSuccess' : 1, 'exception':1}
 
