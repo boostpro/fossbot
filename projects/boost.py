@@ -37,7 +37,7 @@ def cmake(step):
 
 class IntegrationTest(BuildProcedure):
     def __init__(self, repo):
-        BuildProcedure.__init__(self, 'Integration Test')
+        BuildProcedure.__init__(self, 'Integration')
 
         self.addSteps(
             Git(repourl='git://github.com/%s.git' % repo, haltOnFailure=True),
