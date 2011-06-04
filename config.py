@@ -19,8 +19,11 @@ BuildmasterConfig = bbot.master(
 
     slaves = [
         Slave(
+            'boostpro-ubu11.04-1', max_builds=2,
+            features=dict(os='linux', cc=['gcc'], emacs='23.3', modbot='x', architecture='x86')),
+        Slave(
             'boostpro-ubu11.04x64-2', max_builds=2,
-            features=dict(os='linux', cc=['gcc'], emacs='23.3', modbot='x', architecture='amd64')),
+            features=dict(os='linux', cc=['gcc'], emacs='23.3', modbot='x', architecture='x64')),
 
         Slave(
             'boostpro-win03-1', max_builds=2,
