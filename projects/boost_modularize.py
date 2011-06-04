@@ -12,7 +12,7 @@ include_features=['modbot']
 
 repositories=[GitHub('boost-lib/boost', protocol='ssh'),
               GitHub('ryppl/boost-svn'),
-              GitHub('boost-lib/boost-modularize'),
+              GitHub('ryppl/boost-modularize'),
               ]
 
 build_procedures=[ 
