@@ -1,4 +1,4 @@
-from fossbot.bbot.procedures import GitHubElisp
+from fossbot.bbot.emacs import GitHubElisp
 from fossbot.bbot.status import IRC, GitHubWebStatus, MailNotifier
 from fossbot.bbot.repository import GitHub
 
