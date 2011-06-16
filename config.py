@@ -33,19 +33,6 @@ BuildmasterConfig = bbot.master(
                 emacs='23.3', 
                 )
             ),
-
-        Slave(
-            'boostpro-win03-1', max_builds=2,
-            features=dict(
-                os='win32', 
-                cc=['vc7.1', 'vc8', 'vc9', 'vc10'], 
-                emacs='23.3', 
-                # the slave has commit rights on the modularized boost at http://github.com/boost-lib
-                # but currently modularization doesn't seem to work there
-
-                # modbot='x',
-                )
-            ),
         ],
         
     projects = 'fossbot.projects',
