@@ -26,15 +26,11 @@ BuildmasterConfig = bbot.master(
             features=dict(os='linux', cc=['gcc'], emacs='23.3', modbot='x', architecture='x64')),
 
         Slave(
-            'boostpro-win03-1', max_builds=2,
+            'boostpro-win08x64-2', max_builds=2,
             features=dict(
-                os='win32', 
+                os='win64', 
                 cc=['vc7.1', 'vc8', 'vc9', 'vc10'], 
                 emacs='23.3', 
-                # the slave has commit rights on the modularized boost at http://github.com/boost-lib
-                # but currently modularization doesn't seem to work there
-
-                # modbot='x',
                 )
             ),
         ],
