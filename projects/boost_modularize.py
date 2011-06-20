@@ -20,7 +20,7 @@ build_procedures=[
     .addSteps(*
         [repo.step(
                 workdir=repo.name, 
-                alwaysUseLatest=True,
+                # alwaysUseLatest=True,
                 name='Git(%s)' % repo.name,
                 haltOnFailure=True
                 ) 
