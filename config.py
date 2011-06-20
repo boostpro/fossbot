@@ -15,7 +15,7 @@ if 'real_compareToSetup' not in globals():
 BuildmasterConfig = bbot.master(
     title = 'BoostPro FOSSbot',
     titleURL = 'http://github.com/boostpro/fossbot',
-    buildbotURL = 'http://bbot.boost-consulting.com',
+    buildbotURL = 'http://bbot.boostpro.com',
 
     slaves = [
         Slave(
