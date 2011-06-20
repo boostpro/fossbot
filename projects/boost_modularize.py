@@ -18,13 +18,14 @@ repositories=[GitHub('boost-lib/boost', protocol='ssh'),
 build_procedures=[ 
     BuildProcedure('Modularize')
     .addSteps(*
-        [repo.step(
+        reduce( lambda x,y: x+y,
+            [repo.steps(
                 workdir=repo.name, 
                 # alwaysUseLatest=True,
                 name='Git(%s)' % repo.name,
                 haltOnFailure=True
                 ) 
-          for repo in repositories]
+          for repo in repositories])
         +
         [ShellCommand(
                 command=['python', 'modularize.py', '--src=../boost-svn', '--dst=../boost', cmd],
