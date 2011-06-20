@@ -36,5 +36,9 @@ BuildmasterConfig = bbot.master(
     status = [GitHubWebStatus(http_port='tcp:8010:interface=127.0.0.1')()],
     )
 
+# For debugging
+import buildbot.manhole
+BuildmasterConfig['manhole'] = buildbot.manhole.AuthorizedKeysManhole(41999, "manhole-authorized_keys")
+
 from pprint import pprint
 pprint(BuildmasterConfig)
