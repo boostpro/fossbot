@@ -17,14 +17,16 @@ from twisted.python import log
 
 msvc = re.compile(r'vc([0-9]+)(?:\.([0-9]))?')
 
-def cmake_toolchain(props):
+def cmake_toolchain(build):
+    props = build.getProperties()
     m = re.match(r'vc(([0-9]+)(?:\.([0-9]))?)', props.getProperty('cc',''))
     if m:
         return r'vs' + m.group(1)
     return ''
 cmake_toolchain_opt = WithProperties('-DTOOLCHAIN=%(tc)s', tc=cmake_toolchain)
 
-def on_windows(props):    
+def on_windows(build):    
+    props = build.getProperties()
     return props.getProperty('os','').startswith('win')
 
 cmake_continue_opt = WithProperties(
