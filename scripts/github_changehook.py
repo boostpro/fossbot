@@ -152,7 +152,7 @@ class GitHubBot(GitHubChangeListener):
         logging.debug(">>>>>>>> git fetch:")
         x = defer.waitForDeferred(
             utils.getProcessOutputAndValue(
-                '/usr/local/bin/git', ['--no-pager', 'fetch', '--all'], path=self.src_dir))
+                '/usr/bin/git', ['--no-pager', 'fetch', '--all'], path=self.src_dir))
         yield x
         out,err,code = x.getResult()
         if code != 0: 
@@ -163,7 +163,7 @@ class GitHubBot(GitHubChangeListener):
         logging.debug("processing changes: %s" % changes)
         x = defer.waitForDeferred(
             utils.getProcessOutputAndValue(
-                '/usr/local/bin/git', ['--no-pager', 'reset', '--hard', 'origin/master' ], path=self.src_dir))
+                '/usr/bin/git', ['--no-pager', 'reset', '--hard', 'origin/master' ], path=self.src_dir))
         yield x
         out,err,code = x.getResult()
         if code != 0: 
@@ -173,7 +173,7 @@ class GitHubBot(GitHubChangeListener):
         logging.debug(">>>>>>>> git submodule:")
         x = defer.waitForDeferred(
             utils.getProcessOutputAndValue(
-                '/usr/local/bin/git', ['--no-pager', 'submodule', 'update', '--init' ], path=self.src_dir))
+                '/usr/bin/git', ['--no-pager', 'submodule', 'update', '--init' ], path=self.src_dir))
         yield x
         out,err,code = x.getResult()
         if code != 0: 
