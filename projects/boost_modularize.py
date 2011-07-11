@@ -3,6 +3,7 @@ from fossbot.bbot.procedures import BuildProcedure
 from fossbot.bbot.status import IRC, MailNotifier
 
 from buildbot.steps.shell import ShellCommand
+from buildbot.schedulers.filter import ChangeFilter
 
 from buildbot import util
 
@@ -10,10 +11,14 @@ name = 'Boost.Modularize'
 
 include_features=['modbot']
 
-repositories=[GitHub('boost-lib/boost', protocol='ssh'),
-              GitHub('ryppl/boost-svn'),
-              GitHub('ryppl/boost-modularize'),
-              ]
+input_repos = [
+    GitHub('ryppl/boost-svn'),
+    GitHub('ryppl/boost-modularize'),
+    ]
+
+repositories = input_repos + [
+    GitHub('boost-lib/boost', protocol='ssh')
+    ]
 
 build_procedures=[ 
     BuildProcedure('Modularize')
@@ -47,4 +52,7 @@ status=[
                  extraRecipients=["ryppl-dev@googlegroups.com"],
                  mode='problem')]
 
-
+def make_change_filter(project):
+    return ChangeFilter(
+        repository_fn=
+        lambda url: any(r.match_url(url) for r in input_repos))
