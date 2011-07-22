@@ -23,17 +23,11 @@ def cmake_toolchain(build):
     if m:
         return r'vs' + m.group(1)
     return ''
+
 cmake_toolchain_opt = WithProperties('-DTOOLCHAIN=%(tc)s', tc=cmake_toolchain)
 
-def on_windows(build):    
-    props = build.getProperties()
-    return props.getProperty('os','').startswith('win')
-
-cmake_continue_opt = WithProperties(
-    '%(x)s',x=lambda p: on_windows(p) and '/K' or '-k')
-
 def cmake(step):
-    return ['cmake', cmake_continue_opt, 
+    return ['cmake',
             '-DBUILDDIR=../build',
             '-DBUILDSTEP='+step, cmake_toolchain_opt, 
             '-P', 'build.cmake']
@@ -46,15 +40,15 @@ include_features=['os', 'cc']
 
 repositories=[GitHub(hub_repo, protocol='https')]
 
-build_procedures=[ 
-    BuildProcedure('Integration')
-    .addSteps(
-        *repositories[0].steps(workdir='boost', haltOnFailure=True))
-    .addSteps(
-        Configure(workdir='boost', command=cmake('configure'), haltOnFailure=True, alwaysRun=True),
-        Compile(workdir='boost', command=cmake('build'), haltOnFailure=True, alwaysRun=True),
-        Test(workdir='boost', command=cmake('test'), haltOnFailure=True, alwaysRun=True),
-        ShellCommand(workdir='boost', command=cmake('package'), name='Package'))
+build_procedures=[
+    BuildProcedure('Integration').addSteps(
+        *repositories[0].steps(workdir='boost', haltOnFailure=True),
+        Configure(workdir='boost', command=cmake('configure'), haltOnFailure=True),
+        Compile(workdir='boost', command=cmake('build'), haltOnFailure=True),
+        Test(workdir='boost', command=cmake('test'), haltOnFailure=True),
+        ShellCommand(workdir='boost', command=cmake('documentation'), name='Docs'),
+        ShellCommand(workdir='boost', command=cmake('package'), name='Package')
+        )
 ]
 
 transitions={'successToFailure' : 1,'failureToSuccess' : 1, 'exception':1}

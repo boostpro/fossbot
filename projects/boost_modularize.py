@@ -11,13 +11,9 @@ name = 'Boost.Modularize'
 
 include_features=['modbot']
 
-input_repos = [
+repositories = [
     GitHub('ryppl/boost-svn'),
     GitHub('ryppl/boost-modularize'),
-    ]
-
-repositories = input_repos + [
-    GitHub('boost-lib/boost', protocol='ssh')
     ]
 
 build_procedures=[ 
@@ -38,7 +34,7 @@ build_procedures=[
                 workdir='boost-modularize',
                 haltOnFailure=True
                 )
-         for cmd in ('update', 'push')])
+         for cmd in ('setup', 'update', 'push')])
     ]
 
 transitions={'successToFailure' : 1,'failureToSuccess' : 1, 'exception':1}
@@ -55,4 +51,4 @@ status=[
 def make_change_filter(project):
     return ChangeFilter(
         repository_fn=
-        lambda url: any(r.match_url(url) for r in input_repos))
+        lambda url: any(r.match_url(url) for r in repositories))
