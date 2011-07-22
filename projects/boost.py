@@ -29,7 +29,7 @@ cmake_toolchain_opt = WithProperties('-DTOOLCHAIN=%(tc)s', tc=cmake_toolchain)
 def cmake(step):
     return ['cmake',
             '-DBUILDDIR=../build',
-            '-DBUILDSTEP='+step, cmake_toolchain_opt, 
+            WithProperties('-DBUILDSTEP='+step), cmake_toolchain_opt, 
             '-P', 'build.cmake']
 
 
@@ -44,7 +44,7 @@ build_procedures=[
     BuildProcedure('Integration').addSteps(
         *repositories[0].steps(workdir='boost', haltOnFailure=True))
     .addSteps(
-        Configure(workdir='boost', command=cmake('configure'), haltOnFailure=True),
+        Configure(workdir='boost', command=cmake('%(clean:+clean)sconfigure'), haltOnFailure=True),
         Compile(workdir='boost', command=cmake('build'), haltOnFailure=True),
         Test(workdir='boost', command=cmake('test'), haltOnFailure=True),
         ShellCommand(workdir='boost', command=cmake('documentation'), name='Docs'),
