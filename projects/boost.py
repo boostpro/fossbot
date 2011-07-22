@@ -42,7 +42,8 @@ repositories=[GitHub(hub_repo, protocol='https')]
 
 build_procedures=[
     BuildProcedure('Integration').addSteps(
-        *repositories[0].steps(workdir='boost', haltOnFailure=True),
+        *repositories[0].steps(workdir='boost', haltOnFailure=True))
+    .addSteps(
         Configure(workdir='boost', command=cmake('configure'), haltOnFailure=True),
         Compile(workdir='boost', command=cmake('build'), haltOnFailure=True),
         Test(workdir='boost', command=cmake('test'), haltOnFailure=True),
