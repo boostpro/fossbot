@@ -50,5 +50,5 @@ status=[
 
 def make_change_filter(project):
     return ChangeFilter(
-        repository_fn=
-        lambda url: any(r.match_url(url) for r in repositories))
+        repository_fn=lambda url: any(r.match_url(url) for r in repositories),
+        branch='master')
