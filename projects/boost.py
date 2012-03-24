@@ -46,9 +46,8 @@ build_procedures=[
     .addSteps(
         Configure(workdir='boost', command=cmake('%(clean:+clean)sconfigure'), haltOnFailure=True),
         Compile(workdir='boost', command=cmake('build'), haltOnFailure=True),
-        Test(workdir='boost', command=cmake('test'), haltOnFailure=True),
-        ShellCommand(workdir='boost', command=cmake('documentation'), name='Docs'),
-        ShellCommand(workdir='boost', command=cmake('package'), name='Package')
+        Test(workdir='boost', command=cmake('test'), haltOnFailure=False),
+        ShellCommand(workdir='boost', command=cmake('documentation'), name='Docs')
         )
 ]
 
