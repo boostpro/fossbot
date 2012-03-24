@@ -4,6 +4,7 @@ from fossbot.bbot.status import IRC, MailNotifier
 
 from buildbot.steps.shell import ShellCommand
 from buildbot.schedulers.filter import ChangeFilter
+from buildbot.process.properties import WithProperties
 
 from buildbot import util
 
@@ -34,7 +35,7 @@ build_procedures=[
                 workdir='boost-modularize',
                 haltOnFailure=True
                 )
-         for cmd in ('setup', 'update', 'push')])
+         for cmd in (WithProperties('%(clean:+clean)ssetup'), 'update', 'push')])
     ]
 
 transitions={'successToFailure' : 1,'failureToSuccess' : 1, 'exception':1}
