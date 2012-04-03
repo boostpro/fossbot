@@ -15,21 +15,23 @@ import re
 
 from twisted.python import log
 
-msvc = re.compile(r'vc([0-9]+)(?:\.([0-9]))?')
-
-def cmake_toolchain(build):
-    props = build.getProperties()
-    m = re.match(r'vc(([0-9]+)(?:\.([0-9]))?)', props.getProperty('cc',''))
-    if m:
-        return r'vs' + m.group(1)
-    return ''
-
-cmake_toolchain_opt = WithProperties('-DTOOLCHAIN=%(tc)s', tc=cmake_toolchain)
+def cmake_generator(build):
+    cc = build.getProperties().getProperty('cc','')
+    if (cc == "vs10"):
+        return "Visual Studio 10"
+    elif (cc == "vs9"):
+        return "Visual Studio 9 2008"
+    elif (cc == "vs8"):
+        return "Visual Studio 8 2005"
+    elif (cc == "vs7.1"):
+        return "Visual Studio 7 .NET 2003"
+    return "Unix Makefiles"
 
 def cmake(step):
     return ['cmake',
             '-DBUILDDIR=../build',
-            WithProperties('-DBUILDSTEP='+step), cmake_toolchain_opt, 
+            WithProperties('-DBUILDSTEP='+step),
+            WithProperties('-DGENERATOR=%(gen)s', gen=cmake_generator), 
             '-P', 'build.cmake']
 
 
