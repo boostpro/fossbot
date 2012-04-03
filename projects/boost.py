@@ -47,7 +47,7 @@ build_procedures=[
         *repositories[0].steps(workdir='boost', haltOnFailure=True))
     .addSteps(
         Configure(workdir='boost', command=cmake('%(clean:+clean)sconfigure'), haltOnFailure=True),
-        Compile(workdir='boost', command=cmake('build'), haltOnFailure=True),
+        Compile(workdir='boost', command=cmake('build'), haltOnFailure=False),
         Test(workdir='boost', command=cmake('test'), haltOnFailure=False),
         ShellCommand(workdir='boost', command=cmake('documentation'), name='Docs')
         )
