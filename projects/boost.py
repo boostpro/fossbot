@@ -17,13 +17,13 @@ from twisted.python import log
 
 def cmake_generator(build):
     cc = build.getProperties().getProperty('cc','')
-    if (cc == "vs10"):
+    if (cc == "vc10"):
         return "Visual Studio 10"
-    elif (cc == "vs9"):
+    elif (cc == "vc9"):
         return "Visual Studio 9 2008"
-    elif (cc == "vs8"):
+    elif (cc == "vc8"):
         return "Visual Studio 8 2005"
-    elif (cc == "vs7.1"):
+    elif (cc == "vc7.1"):
         return "Visual Studio 7 .NET 2003"
     return "Unix Makefiles"
 
