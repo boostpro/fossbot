@@ -37,7 +37,7 @@ def cmake(step):
 
 class CMakeBuild(Compile):
 
-    __init__(self, config, target = None, **kwargs):
+    def __init__(self, config, target = None, **kwargs):
         self.config = config
         self.target = target
         Compile.__init__(self, **kwargs)
