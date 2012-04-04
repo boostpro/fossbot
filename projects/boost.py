@@ -35,6 +35,26 @@ def cmake(step):
             '-P', 'build.cmake']
 
 
+class CMakeBuild(Compile):
+
+    __init__(self, config, target = None, **kwargs):
+        self.config = config
+        self.target = target
+        Compile.__init__(self, **kwargs)
+
+    def start(self):
+        multi = self.getProperties().getProperty('cc','').startswith("vc")
+        command = ["cmake", "--build", "." if multi else self.config]
+        if multi:
+            command.append("--config")
+            command.append(self.config)
+        if self.target is not None:
+            command.append("--target")
+            command.append(self.target)
+        self.setCommand(command)
+        return Compile.start(self)
+
+
 name = 'Boost'
 hub_repo = 'boost-lib/boost'
 
@@ -47,7 +67,8 @@ build_procedures=[
         *repositories[0].steps(workdir='boost', haltOnFailure=True))
     .addSteps(
         Configure(workdir='boost', command=cmake('%(clean:+clean)sconfigure'), haltOnFailure=True),
-        Compile(workdir='boost', command=cmake('build'), haltOnFailure=False),
+        CMakeBuild('Debug', workdir='boost/build', haltOnFailure=False),
+        CMakeBuild('Release', workdir='boost/build', haltOnFailure=False),
         Test(workdir='boost', command=cmake('test'), haltOnFailure=False),
         ShellCommand(workdir='boost', command=cmake('documentation'), name='Docs')
         )
