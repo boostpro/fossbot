@@ -56,7 +56,7 @@ class CMakeBuild(Compile):
 
 
 name = 'Boost'
-hub_repo = 'boost-lib/boost'
+hub_repo = 'ryppl/boost-zero'
 
 include_features=['os', 'cc']
 
