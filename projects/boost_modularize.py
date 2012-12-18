@@ -30,12 +30,12 @@ build_procedures=[
           for repo in repositories])
         +
         [ShellCommand(
-                command=['python', '-u', 'modularize.py', '--src=../boost-svn', '--dst=../boost', cmd],
-                name='modularize(%s)' % cmd,
+                command=['python', '-u', 'modularize.py', '--src=../boost-svn', '--dst=../boost', '--branch='+branch],
+                name='modularize(%s)' % branch,
                 workdir='boost-modularize',
-                haltOnFailure=True
+                haltOnFailure=False
                 )
-         for cmd in (WithProperties('%(clean:+clean)ssetup'), 'update', 'push')])
+         for branch in ('master', 'develop')])
     ]
 
 transitions={'successToFailure' : 1,'failureToSuccess' : 1, 'exception':1}
